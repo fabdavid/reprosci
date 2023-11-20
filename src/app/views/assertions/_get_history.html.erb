@@ -1,0 +1,42 @@
+History
+
+<% h_seen={} %>
+<% @assertion_versions.each do |o| %>
+
+<%# @h_assertions.to_json %>
+<% assertion_type = #(o.class == Assertion) ? @h_assertion_types[o.assertion_type_id] : 
+   @h_assertion_types[@h_assertions[o.assertion_id].assertion_type_id] %>
+<div class='card mt-2 <%= (['main claim', 'major_claim', 'minor_claim', 'method'].include? assertion_type.name) ? 'bg-info' : '' %>'>
+  <div class='card-body <%= (['main claim', 'major_claim', 'minor_claim', 'method'].include? assertion_type.name) ? 'text-light' : '' %>'>
+    <div class='float-right'>
+      <span class=''><%= display_date_short(o.created_at) %> by 
+	<%# @h_users[o.user_id].username %>
+	<% u = o.user %>
+	<% ou = o.orcid_user %>
+	<%= raw display_user(u, ou) %>
+      </span>
+    </div>
+    <%# if o.class == Assertion %>
+<!--     New <%# assertion_type.name %> <small><%# o.id if admin? %></small>
+    <p><%# raw display_assertion(@h_assertions[o.id], assertion_type) %></p> -->
+    <%# elsif o.class == AssertionVersion %>
+    <%= (o.version == 1) ? 'New' : 'Edit' %> <%= assertion_type.name %> <%= "on #{@h_assertion_types[@h_assertions[@h_rels[o.assertion_id]].assertion_type_id].name}" if ['assessment','comment'].include? assertion_type.name %><small><%= o.id if admin? %></small>
+    <p>
+      <%= raw display_assertion(@h_last_version_assertion[o.assertion_id], assertion_type) %>
+      <% if @h_last_version_assertion[o.assertion_id].minor == true %>
+      <i class='fas fa-pen' title='Last minor edit by <%= @h_last_version_assertion[o.assertion_id].user.username %>'></i>
+      <% end %>
+    </p> 
+    
+    <%# end %>
+  </div>
+</div>
+<% end %>
+
+<%= javascript_tag do %>
+
+$(".gene_tag").click(function(e){
+<%= render :partial => 'shared/gene_tag_js' %>
+})
+
+<% end %>

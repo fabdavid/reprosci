@@ -1,0 +1,131 @@
+<%# params[:workspace_key] %>
+<div class="container">
+  <div class='row justify-content-md-center'>
+    <!-- <div class='col col-xs-6 col-md-6 col-lg-7 mb-2'> -->
+    <div class='col-md-7  mb-2'>
+      <div class="input-group btn-group" role="group" aria-label="Search">
+        <%# text_field_tag 'free_text', session[:settings][:free_text], {:size => 30, :class => "form-control", :placeholder => "Search"} %>
+        <%= text_field_tag 'article_free_text', session[:article_settings][:free_text] || '', {:size => 30, :class => "form-control", :placeholder => "Search"} %>
+	<button id='article_search-btn' type="button" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+        <%# label_tag 'Page size' %>
+      </div>
+    </div>
+    <!--  <div class='col col-xs-6 col-md-2 col-lg-1 mb-2'> -->
+<!--    <div class='col-md-2 mb-2'>
+      <div class="btn-group ml-4" role="group" aria-label="search_result_view"'>
+        <button id='card_view_btn' type="button" class="search_view_btn btn btn<%= '-outline' if session[:article_settings][:search_view_type] == 'list' %>-success"><i class="fas fa-th"></i></button>
+        <button id='list_view_btn' type="button" class="search_view_btn btn btn<%= '-outline' if session[:article_settings][:search_view_type] == 'card' %>-success"><i class="fas fa-list"></i></button>
+      </div>
+    </div>
+-->
+    <div class='col-md-2 mb-2'>
+      <% if @workspace and annotable? @workspace %>
+      <%# link_to raw("<i class='fa fa-plus'></i> Add articles"), new_article_path(@workspace), {:class => 'btn btn-primary'} %>
+      <button id='add-articles-btn' class='btn btn-primary' type='button'><i class='fa fa-plus'></i> Add articles</button>
+      <% end %>
+    </div>
+    <%= hidden_field_tag 'article_search_view_type', session[:article_settings][:search_view_type] %>
+    <!--  <div class='clear'></div> -->
+  </div>
+</div>
+
+<div id='article_search_results' class="m-4"></div>
+
+<%= javascript_tag do  %>
+<% if @workspace and annotable? @workspace %>
+$("#add-articles-btn").click(function(e){
+ $("#ontop_popup_window").removeClass("hidden")
+ refresh("ontop_popup_container", "<%= raw new_article_path(:workspace_key => @workspace.key) %>", {loading : 'fa-2x'})
+ var w = $(window).width();
+  $("#ontop_popup_window").css({
+        left: 200,
+        width:w - 250,
+        height:'auto',
+        top: e.pageY + 10
+    }).stop().show(100);
+
+})
+<% end %>
+
+$(".article_search_view_btn").click(function(){
+ var v = this.id.split("_")[0]
+ //console.log(v)
+ //console.log( $("#article_search_view_type").val())
+ var l = ['card', 'list']
+ if (v != $("#article_search_view_type").val()){
+  // console.log("v")
+   $("#article_search_view_type").val(v)
+   for (var i=0; i< l.length; i++){
+    // console.log("remove " + l[i])
+     $("#article_" + l[i] + "_view_btn").removeClass("btn-success")
+     $("#article_" + l[i] + "_view_btn").addClass("btn-outline-success")
+   }
+   $("#article_" + v + "_view_btn").addClass("btn-success")
+   $("#article_" + v + "_view_btn").removeClass("btn-outline-success")
+   var p = [{name : 'free_text', value : $("#article_free_text").val()}]
+   var h = {loading:'fa-2x'}
+   article_search(p, h)
+ }
+})
+
+<% if params[:q] %>
+ $("#article_free_text").val('<%= params[:q] %>')
+<% end %>
+
+function article_search(p, h) {
+ if (p.length > 0 && p[0].name == 'auto'){ // refresh without input if auto
+  h.not_upd_if_empty = 1
+ }
+ if ($("#article_search_results").html() != ''){
+  var fields = ['per_page', 'page', 'article_ids', 'search_view_type']
+  for (var i=0; i< fields.length; i++){
+   p.push({name : fields[i], value : $("#article_" + fields[i]).val()})
+  }
+ }
+ <% if workspace_key = params[:workspace_key] %>
+   p.push({name : "workspace_key", value : "<%= workspace_key %>"})
+ <% end %>
+ 
+ console.log("do_search")
+ refresh_post("article_search_results", "<%= do_search_articles_path() %>", p, 'post', h);
+}
+
+function article_init_search(){
+  $("#article_page").val(1)
+}
+
+$("#article_search-btn").click(function(){
+  article_init_search()
+  console.log("bla")
+  var p = [{name : 'free_text', value : $("#article_free_text").val()}]
+  var h = {loading:'fa-2x'}
+  article_search(p, h)
+})
+
+$("#article_free_text").keyup(function(e){
+ // console.log("KEY:" + e.key)
+ if (e.key == 'Enter'){
+  article_init_search()
+  var p = [{name : 'free_text', value : $("#article_free_text").val()}]
+  var h = {loading:'fa-2'}
+  article_search(p, h)
+ }
+})
+
+$(document).ready(function(){
+var p = [{name : 'free_text', value : $("#article_free_text").val()}]
+var h = {loading:'fa-2x'}
+article_search(p, h)
+})
+
+
+/*function upd_search(){
+article_search([{name : 'auto', value : '1'}], {})
+}
+
+article_upd_search()
+*/
+//window.setInterval(upd_search, 10000)
+//window.setInterval(function(){ $("#ontop_window").addClass("hidden")}, 5000)
+
+<% end %>

@@ -1,0 +1,2 @@
+class RelType < ApplicationRecord
+end

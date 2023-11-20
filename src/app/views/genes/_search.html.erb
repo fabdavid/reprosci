@@ -1,0 +1,44 @@
+<% if @gene %>
+<div class='row mt-4'>
+  <div class='col-md-4'>Ensembl ID</div>
+  <div class='col-md-8'>
+    <span id='ensembl_id' class='pointer badge badge-dark'><%= @gene.ensembl_id %></span>
+    <% if extra_links = @h_extra_links[@gene.organism_id] %>
+    <%= raw extra_links.map{|e| "<a href='#{e[1]}' target='_blank' class='badge badge-light'>#{e[0]}</a>"}.join(" ") %>
+    <% end %>
+  </div>
+</div>
+<div class='row'>
+  <div class='col-md-4'>Gene name</div>
+  <div class='col-md-8'><span id='ensembl_symbol' class='badge badge-light'><%= @gene.name %></span></div>
+</div>
+<div class='row'>
+  <div class='col-md-4'>Biotype</div>
+  <div class='col-md-8'><span id='ensembl_biotype' class='badge badge-info'><%= @gene.biotype %></span></div>
+</div>
+<div class='row mt-2 mb-2'>
+  <div class='col-md-4'><b>Description</b></div>
+  <div class='col-md-8'><b><%= @gene.description %></b></div>
+</div>
+<div class='row'>
+  <div class='col-md-4'>Alt gene names</div>
+  <div class='col-md-8'><%= raw @gene.alt_names.split(",").map{|e| "<span class='badge badge-light'>#{e}</span>"}.join(" ") %></div>
+</div>
+<% if @gene.obsolete_alt_names and  @gene.obsolete_alt_names != '' %>
+<div class='row'>
+  <div class='col-md-4'>Obsolete gene names</div>
+  <div class='col-md-8'><%= raw @gene.obsolete_alt_names.split(",").uniq.map{|e| "<span class='badge badge-light'>#{e}</span>"}.join(" ") %></div>
+</div>
+<% end %>
+
+<div><a class="btn btn-primary" href="<%= raw workspace_path(:key => @workspace.key, :q_articles => @gene.name) %>">Search <%= @gene.name %></a></div>
+
+
+
+<%= javascript_tag do %>
+
+$("#ensembl_id").click(function(){
+ window.open("http://www.ensembl.org/Gene/Summary?g=" + $(this).html(), "_blank")
+})
+<% end %>
+<% end %>

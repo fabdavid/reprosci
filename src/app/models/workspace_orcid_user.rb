@@ -1,0 +1,2 @@
+class WorkspaceOrcidUser < ApplicationRecord
+end

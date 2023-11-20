@@ -1,0 +1,141 @@
+<div class="container">
+  <div class='row justify-content-md-center'>
+    <!-- <div class='col col-xs-6 col-md-6 col-lg-7 mb-2'> -->
+    <div class='col-md-7  mb-2'>
+      <div class="input-group btn-group" role="group" aria-label="Search">
+        <%= text_field_tag 'free_text', session[:as_settings][:free_text] || '', {:size => 30, :class => "form-control", :placeholder => "Search"} %>
+        <button id='search-btn' type="button" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+        <%# label_tag 'Page size' %>
+      </div>
+      <div class='mt-2'>
+	<%# session[:as_settings][:at_ids] %>
+	<% AssertionType.where(:name => ['main_claim', 'major_claim', 'minor_claim', 'comment']).all.sort.each do |at| %>
+	
+	<button id='at-btn_<%= at.id %>' class='at-btn btn btn-sm <%= (session[:as_settings][:at_ids].include? at.id) ? 'btn-success' : 'btn-outline-success' %>' type='button'><%= at.name.gsub("_", " ").capitalize %></button>
+	<% end %>
+      </div>
+      <div class='mt-2'>
+	 <% l = AssessmentType.all.sort{|a, b| a.rank <=> b.rank}.map{|at| [at.name, at.id]} %>
+        <% l.unshift(['All', '']) %>
+        <%= select_tag 'assessment_type_id', options_for_select(l, ''), :class => 'form-control' %>
+      </div>
+    </div>
+    <!--  <div class='col col-xs-6 col-md-2 col-lg-1 mb-2'> -->
+<!--    <div class='col-md-2 mb-2'>
+      <div class="btn-group ml-4" role="group" aria-label="search_result_view"'>
+        <button id='card_view_btn' type="button" class="search_view_btn btn btn<%= '-outline' if session[:ws_settings][:search_view_type] == 'list' %>-success"><i class="fas fa-th"></i></button>
+        <button id='list_view_btn' type="button" class="search_view_btn btn btn<%= '-outline' if session[:ws_settings][:search_view_type] == 'card' %>-success"><i class="fas fa-list"></i></button>
+      </div>
+    </div>
+-->
+    <%= hidden_field_tag 'search_view_type', session[:as_settings][:search_view_type] %>
+    <!--  <div class='clear'></div> -->
+  </div>
+</div>
+
+<div id='search_results' class="m-4"></div>
+
+<%= javascript_tag do  %>
+<% h_at_ids = {}; session[:as_settings][:at_ids].map{|e| h_at_ids[e]=1} %>
+var h_at_ids = <%= raw h_at_ids.to_json %>
+
+$(".at-btn").click(function(){
+ var id = this.id.split("_")[1]
+ if ($(this).hasClass("btn-outline-success")){
+  $(this).addClass("btn-success")
+  $(this).removeClass("btn-outline-success")
+  h_at_ids[id] = 1
+ }else{
+  $(this).addClass("btn-outline-success")
+  $(this).removeClass("btn-success")
+  delete h_at_ids[id]
+ }
+  var p = [{name : 'free_text', value : $("#free_text").val()}]
+  var h = {loading:'fa-2x'}
+  search(p, h)
+})
+
+
+$(".search_view_btn").click(function(){
+ var v = this.id.split("_")[0]
+ //console.log(v)
+ //console.log( $("#search_view_type").val())
+ var l = ['card', 'list']
+ if (v != $("#search_view_type").val()){
+  // console.log("v")
+   $("#search_view_type").val(v)
+   for (var i=0; i< l.length; i++){
+    // console.log("remove " + l[i])
+     $("#" + l[i] + "_view_btn").removeClass("btn-success")
+     $("#" + l[i] + "_view_btn").addClass("btn-outline-success")
+   }
+   $("#" + v + "_view_btn").addClass("btn-success")
+   $("#" + v + "_view_btn").removeClass("btn-outline-success")
+   var p = [{name : 'free_text', value : $("#free_text").val()}]
+   var h = {loading:'fa-2x'}
+   search(p, h)
+ }
+})
+
+<% if params[:q] %>
+ $("#free_text").val('<%= params[:q] %>')
+<% end %>
+
+function search(p, h) {
+ if (p.length > 0 && p[0].name == 'auto'){ // refresh without input if auto
+  h.not_upd_if_empty = 1
+ }
+ if ($("#search_results").html() != ''){
+  var fields = ['per_page', 'page', 'search_view_type', 'assessment_type_id']
+  for (var i=0; i< fields.length; i++){
+   p.push({name : fields[i], value : $("#" + fields[i]).val()})
+  }
+ }
+ p.push({name : 'at_ids', value : Object.keys(h_at_ids)})
+<% if params[:workspace_key] %>
+ p.push({name : "workspace_key", value : '<%= params[:workspace_key] %>'})
+<% end %>		   
+ refresh_post("search_results", "<%= do_search_assertions_path() %>", p, 'post', h);
+}
+
+function init_search(){
+  $("#page").val(1)
+}
+
+$("#assessment_type_id").change(function(){
+  var p = [{name : 'free_text', value : $("#free_text").val()}]
+  var h = {loading:'fa-2x'}
+  search(p, h)
+})
+
+$("#search-btn").click(function(){
+  init_search()
+  console.log("bla")
+  var p = [{name : 'free_text', value : $("#free_text").val()}]
+  var h = {loading:'fa-2x'}
+  search(p, h)
+})
+
+$("#free_text").keyup(function(e){
+ // console.log("KEY:" + e.key)
+ if (e.key == 'Enter'){
+  init_search()
+  var p = [{name : 'free_text', value : $("#free_text").val()}]
+  var h = {loading:'fa-2'}
+  search(p, h)
+ }
+})
+
+var p = [{name : 'free_text', value : $("#free_text").val()}]
+var h = {loading:'fa-2x'}
+search(p, h)
+
+function upd_search(){
+search([{name : 'auto', value : '1'}], {})
+}
+
+upd_search()
+//window.setInterval(upd_search, 10000)
+//window.setInterval(function(){ $("#ontop_window").addClass("hidden")}, 5000)
+
+<% end %>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ReproSci</title>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <meta name="turbolinks-cache-control" content="no-cache">
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!--<script async src="https://www.googletagmanager.com/gtag/js?id='UA-131156225-3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-131156225-3', { 'anonymize_ip': true });
+    </script>
+-->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2D0B30Y3Q"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-R2D0B30Y3Q');
+    </script>
+  </head>
+  
+  <body id='body_container'>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="<%= root_path %>">ReproSci <small style='color:grey;font-style:italic'>Analysis of scientific research reproducibility</small></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+	<span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+	<ul class="navbar-nav">
+	  
+	  <li class="nav-item active">
+	    <%= link_to raw('Workspaces'), workspaces_path(), {:class => 'nav-link'} %>
+	    <%# link_to raw('Articles'), articles_path(), {:class => 'nav-link'} %>
+	  </li>
+
+	  <% if admin? %>
+	  <li class="nav-item active">                                                                           
+	    <%= link_to raw('Assertions'), search_assertions_path(), {:class => 'nav-link'} %>   
+	  </li>
+          <% end %>
+
+	  <% if superadmin? %>
+	  <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Admin Tools
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style='margin-top:-34px;'>
+	      <a class="dropdown-item" href="<%= assessment_types_path() %>">Assessment types</a>
+	      <a class="dropdown-item" href="<%= abuse_report_types_path() %>">Abuse report types</a>
+	    </div>
+	  </li>
+	  <% end %>
+
+	  <li class="nav-item active">
+            <%= link_to 'FAQ', faq_path(), {:class => 'nav-link'} %>
+          </li>
+	  
+	  <li class="nav-item">   
+            <% if user_signed_in? %>                          
+            <%= link_to current_user.email, edit_user_registration_path, {:class => 'nav-link'} %>
+	  </li>
+	  <li class="nav-item">
+            <%= link_to 'Logout',  destroy_user_session_path, {:method => :delete, :class => 'nav-link'} %>   
+            <% else %>
+            <%= link_to 'Login', new_user_session_path, {:class => 'nav-link'} %>          
+            <% end %>                                                       
+	  </li>         
+	</ul>
+      </div>
+    </nav>
+    
+    <div class="container-fluid">
+      <div>
+	<div class="row">
+	</div>
+      </div>
+      
+      <div id="info" style="margin-top: 10px"></div>
+      <div id='loading' class='hidden'><%= image_tag('loading.gif') %></div>
+      
+      <div id='ontop_window' class='hidden'>
+        <div class='header'>
+          <div class='title'></div>
+          <div class='float-right'>
+            <div class='other_buttons'></div>
+            <div id='ontop_window_close' class='window_close'>
+              <span onclick="$('#ontop_window').addClass('hidden');">
+		<i class='fa fa-times-circle'></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div id='ontop_container' class='m-2'></div>
+      </div>
+      
+      <div id='ontop_popup_window' class='hidden'>
+	<div id='ontop_popup_window_close'><span onclick="$('#ontop_popup_container').html('');$('#ontop_popup_window').addClass('hidden'); $('#ontop_popup_window').css({display : 'none'}); $('#ontop_popup_container').attr('showed','');$('#ontop_autocomplete_window').addClass('hidden'); $('#ontop_autocomplete_window').css({display : 'none'});"><i class='fa fa-times-circle'></i></span></div>
+	<div id='ontop_popup_container'></div>
+      </div>
+      
+      <div id='ontop_autocomplete_window' class='hidden'>
+        <div id='ontop_autocomplete_window_close'><span onclick="$('#ontop_autocomplete_container').html('');$('#ontop_autocomplete_window').addClass('hidden'); $('#ontop_autocomplete_window').css({display : 'none'}); $('#ontop_autocomplete_container').attr('showed','');"><i class='fa fa-times-circle'></i></span></div>
+        <div id='ontop_autocomplete_container'></div>
+      </div>
+
+      <!--      <div id='rels_window' class='card hidden'>
+		<div class='card-header'>
+		  <div class='top-right-buttons'>
+		    <span id='new_analysis_form_close' class='pointer'>
+		      <i class='fa fa-times-circle'></i>
+		    </span>
+		  </div>
+		  <div>
+		    <span id='rels_title'></span>
+		  </div>
+		</div>
+		<div id='rels_container' class='card-body'>
+		</div>
+      </div>
+      -->  
+      <div class='clear'></div>
+    </div>
+
+    <div id='side_panel' class='card hidden'>
+      <div class='card-header'>
+	<div class='float-right'>
+	  <span id='side_panel_close' class='pointer'>
+            <i class='fa fa-times-circle'></i>
+	  </span>
+	</div>
+	<div>
+	  <span id='side_panel_title'></span>
+	</div>
+      </div>
+      <div id='side_panel_content' class='card-body'>
+      </div>
+    </div>
+
+    <div id="main" class="main">
+<!--      <div class='alert alert-danger'>This tool is still being implemented. Do not use it by yourself for the moment. If you are interested to use it, you can contact us following the link at the bottom of this page.</div>-->
+<% if flash and  flash[:alert] %>
+<div class='alert alert-danger'><%= flash[:alert] %></div>
+<% end %>
+<% if notice %>
+<div class='alert alert-info'><%= notice %></div>
+<% end %>
+
+<% if !admin? and current_user and !current_user.orcid_user %>
+<div class='alert alert-danger mb-3'>
+  In order to be able to access workspaces for which you have granted permissions and submit comments on claims, please <%## in case we want to use the centralized version (implemented in asap initially) link_to 'this link', "https://asap.epfl.ch/orcid_authentication?redirect_url=https://asap.epfl.ch/associate_orcid2" %> 
+  <%= link_to raw(image_tag("orcid.svg", :width => '25px') + ' Sign in with ORCID'), 
+  "https://orcid.org/oauth/authorize?client_id=APP-ZYQLKP3CVR9J5SLI&response_type=code&scope=/authenticate&redirect_uri=https://reprosci.epfl.ch/associate_orcid", {:class => 'btn btn-outline-secondary', :stype => 'background-color:white'} %>
+
+</div>
+
+<!-- https://orcid.org/oauth/authorize?client_id=APP-UIU8KR3XZNMUZ8ZY&response_type=code&scope=/authenticate&redirect_uri=https://asap.epfl.ch/associate_orcid?client=reprosci -->
+
+<% end %>
+
+<div id='content_container'>
+<%= yield %>
+</div>
+    </div>
+
+    <div id="main_footer" class='row ml-2 mr-2' style='margin:0'>
+      <div class='col-4 mt-3'>
+	<%= link_to image_tag('epfl-logo.svg', :height => '35px'), "http://epfl.ch" %>
+      </div>
+      <div class='col-4' style='text-align:center;padding:10px'>
+        &copy;2020-<%= Time.now.year %> EPFL, 1015 Lausanne<br>
+        <a href="mailto:bbcf.epfl@gmail.com,fabrice.david@epfl.ch?subject=ReproSci feedback">Contact</a> |
+       <a href="https://mediacom.epfl.ch/disclaimer">Disclaimer</a>
+      </div>
+      <div class='col-4'  style='text-align:right;padding:10px'>
+	<% if user_signed_in? %>
+        <%= link_to current_user.email, edit_user_registration_path %>
+        <%= link_to 'Logout admin',  destroy_user_session_path, :method => :delete %>
+        <% else %>
+        <%= link_to 'Admin', new_user_session_path %>
+        <% end %>
+      </div>
+    </div>
+    
+    <%= javascript_tag do %>
+    $("#ontop_popup_window").draggable()
+
+    $("#side_panel_close").click(function(){
+
+     $("#content_container").animate({'margin-right' : 0}, 200, function(){})
+     var w = $(window).width();
+     $("#side_panel").animate({'left' : w}, 200, function(){
+      // $("#new_job_main_btn").removeClass('hidden');
+      $("#side_panel").addClass("hidden");
+     });
+
+     unselect_assertion()
+     if ($("#selected_assertion_id").length > 0){    
+      $("#selected_assertion_id").val("")
+     }
+    })
+
+
+
+    <% end %>
+    
+  </body>
+</html>

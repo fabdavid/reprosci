@@ -1,0 +1,2 @@
+class EnsemblSubdomain < ApplicationRecord
+end

@@ -1,0 +1,27 @@
+<h3>Latest changes</h3>
+
+
+<table id='latest_changes'>
+<thead>
+  <tr>
+    <th>Updated at</th>
+    <th>Type</th>
+    <th>Content</th>
+    <th>User</th>
+    <th>Article</th>
+  </tr>
+</thead>
+  <tbody>
+<% @assertions.each do |a| %>
+
+<tr>
+  <td><%= raw display_date_short(a.updated_at) %></td>
+  <td><%= @h_assertion_types[a.assertion_type_id].name %></td>
+  <td><%= a.content %></td>
+  <td><%= raw display_user(a.user, a.user.orcid_user) %></td>
+  <td><%= link_to raw(display_ref(@h_articles[a.article_id])), article_path(:key => @h_articles[a.article_id].key, :tab=>"articles"), {:class => "btn btn-primary", :target => '_blank'} %></td>
+</tr>
+
+
+<% end %> 
+</tbody></table>

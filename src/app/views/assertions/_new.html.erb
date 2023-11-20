@@ -1,0 +1,4 @@
+<h4>New <%= @assertion_type.name.gsub(/_/, ' ') %></h4>
+
+<%# render :partial => "form", assertion: @assertion %>
+<%= render 'form', assertion: @assertion %>

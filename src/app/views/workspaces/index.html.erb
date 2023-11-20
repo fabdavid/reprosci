@@ -1,0 +1,14 @@
+<!--<div class='float-right'><%= link_to 'New Worksapce', new_workspace_path %></div>-->
+
+<div id='search_container' class=''></div>
+
+<%= javascript_tag do %>
+
+$(document).ready(function(){
+
+refresh("search_container", "<%= search_workspaces_path(:nolayout => 1) %>", {loading:'fa-2x'})
+
+})
+
+<% end %>
+

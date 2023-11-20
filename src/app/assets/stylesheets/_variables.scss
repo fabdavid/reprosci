@@ -1,0 +1,43 @@
+// Body
+$body-bg: #ffffff;
+
+$error: red;
+
+// Typography
+$font-size-base: 9px; // this changes the font-size throughout bootstrap
+$font-size-base: 0.9rem;
+$line-height-base: 1.3;
+
+// Bootstrap 4 breakpoints & gutter
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1400px,
+    xxxl: 1600px,
+    xxxxl: 1800px,
+) !default;
+
+$grid-gutter-width: 30px !default;
+
+// number of cards per line for each breakpoint
+$cards-per-line: (
+    xs: 1,
+    sm: 2,
+    md: 3,
+    lg: 3,
+    xl: 4,
+    xxl: 4,
+    xxxl: 5,
+    xxxxl: 6
+);
+
+@each $name, $breakpoint in $grid-breakpoints {
+      @media (min-width: $breakpoint) {
+      	     .card-deck .card {
+	     		      flex: 0 0 calc(#{100/map-get($cards-per-line, $name)}% - #{$grid-gutter-width});
+			      	    }
+				    }
+}

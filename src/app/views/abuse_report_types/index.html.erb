@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Abuse Report Types</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @abuse_report_types.each do |ar_type| %>
+      <tr>
+        <td><%= ar_type.name %></td>
+        <td><%= link_to 'Show', ar_type %></td>
+        <td><%= link_to 'Edit', edit_abuse_report_type_path(ar_type) %></td>
+        <td><%= link_to 'Destroy', ar_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Abuse report Type', new_abuse_report_type_path %>
+

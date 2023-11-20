@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Comment Checks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @comment_checks.each do |comment_check| %>
+      <tr>
+        <td><%= link_to 'Show', comment_check %></td>
+        <td><%= link_to 'Edit', edit_comment_check_path(comment_check) %></td>
+        <td><%= link_to 'Destroy', comment_check, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Comment Check', new_comment_check_path %>

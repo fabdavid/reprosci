@@ -1,0 +1,26 @@
+<div id='ontop_disclaimer' class='alert' style='background-color:white;overflow-y:scroll'>
+  <h5><%= @workspace.name %> workspace disclaimer</h5>
+  <%= raw @workspace.disclaimer %>
+  <% disabled = '' %>
+  <% if current_user and !current_user.orcid_user %>
+  <% disabled = 'disabled' %>
+  <div class='alert alert-danger'>
+    In order to be able to access workspaces for which you have granted permissions and submit comments on claims, please <%## in case we want to use the centralized version (implemented in asap initially) link_to 'this link', "https://asap.epfl.ch/orcid_authentication?redirect_url=https://asap.epfl.ch/associate_orcid2" %>
+    <%= link_to raw(image_tag("orcid.svg", :width => '25px') + ' Sign in with ORCID'),
+    "https://orcid.org/oauth/authorize?client_id=APP-ZYQLKP3CVR9J5SLI&response_type=code&scope=/authenticate&redirect_uri=https://reprosci.epfl.ch/associate_orcid", {:class => 'btn btn-outline-secondary', :stype => 'background-color:white'} %>
+  </div>
+    <% end %>
+    <%# button_to "Sign disclaimer", :type => "button", :id => 'accept_disclaimer', :class => 'btn btn-primary', :disabled => disabled %>
+<button type='button' id='accept_disclaimer' class='btn btn-primary' <%= disabled %>>Sign disclaimer</button> 
+</div>
+
+<%= javascript_tag do %>
+
+var h = $(window).height()
+$("#ontop_disclaimer").css({'max-height':h-100})
+
+$("#accept_disclaimer").click(function(){
+ refresh_post(null, "<%= accept_disclaimer_workspace_path(:key => @workspace.key) %>", [], 'post', {loading:'fa-2x'})
+})
+
+<% end %>

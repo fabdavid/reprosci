@@ -1,0 +1,207 @@
+<%# form_with(model: assertion, local: true) do |form| %>
+<%= form_for assertion do |form| %>
+  <% if assertion.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(assertion.errors.count, "error") %> prohibited this assertion from being saved:</h2>
+
+      <ul>
+      <% assertion.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if @assertion_type.name == 'assessment' %>
+   <% l = AssessmentType.all.map{|at| [at.name, at.id]} %>
+   <%= form.select :assessment_type_id, l, {}, {:class => 'form-control'} %>
+  <% end %>
+
+  <% if @assertion_type.name == 'comment' %>
+  <div class='alert mb-3 p-3' style='background-color:white'>
+    <div class='form-inline'>
+      <span class='text-secondary mr-3'>If you can assess this claim by reproducing or not the results or by citing the literature</span>
+      <button id='reprod-btn-1' type='button' class='reprod-btn btn btn-outline-success mr-2'>Verified</button>
+      <button id='reprod-btn-2' type='button' class='reprod-btn btn btn-outline-warning mr-2'>Mixed</button>
+      <button id='reprod-btn-3' type='button' class='reprod-btn btn btn-outline-danger mr-2'>Challenged</button>
+      <button id='reprod-btn-5' type='button' disabled='disabled' class='reprod-btn btn btn-secondary mr-2'>Not assessed</button>
+      <%= hidden_field_tag 'assertion[assessment_type_id]', 5 %>
+    </div>
+  </div>
+  
+  <div class='alert mb-3 p-3' style='background-color:white'>
+    <div class='form-inline'>
+      <span class='text-secondary mr-3'>If the assessment is based on literature, please enter the PubmedID of the paper</span>
+      <%= form.text_field 'pmid',  :size => 22, :class=>'form-control', :placeholder => 'Enter a PMID (e.g. 19482944)' %>
+    </div>
+  </div>
+
+  <% end %>
+  
+  <%# if @assertion_type.name != 'comment' %>
+  <div class="form-group">
+    <!--    <label for="assertion_content">Name</label> -->
+    <% placeholder = (@assertion_type.name == 'additional_file') ? "Enter file label/description" : 'Enter ' + @assertion_type.name.gsub("_", " ") %>
+    
+    <%= form.text_area :content, {:placeholder => placeholder, :class => 'form-control'} %>
+    <% if @assertion_type.name != 'comment' and @assertion_type.can_attach_file %>
+    <%= file_field_tag :file, {:class => 'form-control'} %>
+    <% end %>
+  </div>
+  <%# end %>
+  
+  <!--    Tags : <span id='list_tags'>None</span><br/> 
+	  Genes : <span id='list_genes'>None</span> -->
+  <%# hidden_field_tag "list_tags_json" %>
+  <%# hidden_field_tag "list_genes_json" %>
+  <%= hidden_field_tag "all_tags_json", @assertion.all_tags_json %>
+  <%= hidden_field_tag "cursor_pos" %>
+  <%= hidden_field_tag "assertion_type", @assertion_type.name %>
+  <%= hidden_field_tag "rel_type_id", (@h_rel_types[@assertion_type.id]) ? @h_rel_types[@assertion_type.id].id : '' %>
+  
+<p id='assertion_preview'>
+</p>
+
+  
+<% if ['comment', 'assessement'].include? @assertion_type.name %>
+  <div class='alert p-3' style='background-color:white'>
+    <span class='text-secondary mr-3'>You can submit some document that supports your comment and/or assessment <i>(please note that this document will be readable by anyone who can access this workspace, which can be restricted to a community and can ultimately become public following the workspace policy)</i>:</span>
+     
+    <% filename = @attachment_dir + (@assertion.id.to_s + "." + ((@assertion.ext) ? @assertion.ext : 'NA')) %>
+     <% if @assertion_type.can_attach_file == true and @assertion.ext and  File.exist?(@attachment_dir + (@assertion.id.to_s + "." + @assertion.ext)) %>
+     <br/><span class='text-danger'>WARNING!! A <a href='<%= get_file_workspace_path(:key => @workspace.key, :p => (@assertion.id.to_s + "." + @assertion.ext), :type => 'attachment') %>'>file</a> already exists! If you submit another one, it will be replaced.</span>
+     <% end %>
+     
+    <% if @assertion_type.can_attach_file %>
+    <%= file_field_tag :file, {:class => 'form-control'} %>
+    <% end %>
+  </div>
+<% end %> 
+
+  <% if action_name == 'edit' and @assertion_type.name != 'comment' %>
+  <div class="form-group">
+    <%= check_box_tag :minor_check, {:class => 'form-control'} %> Minor change (do not show in history)
+  </div>  
+  <% end %>
+  <div class="actions">
+    <button class='btn btn-primary' id='create-assertion-btn' type='button'><%= (action_name == 'new') ? 'Create' : 'Update' %> <%= @assertion_type.name.gsub("_", " ") %></button>
+    <%# form.submit %>
+  </div>
+  <% end %>
+  
+  <%= javascript_tag do %>
+
+$(".reprod-btn").click(function(){
+ console.log("toto")
+ var assessment_id = this.id.split("-")[2]
+ $("#assertion_assessment_type_id").val(assessment_id)
+ var l = ['success', 'warning', 'danger', 'secondary']
+ var m = [1, 2, 3, 5]
+
+ for (var i=0; i< m.length; i++){
+  var cur = $("#reprod-btn-" + m[i])
+ // for (var i=0; i< l.length; i++){
+
+   if ($(cur).hasClass("btn-" + l[i])){
+    $(cur).removeClass("btn-" + l[i]);
+    $(cur).addClass("btn-outline-" + l[i])
+    $(cur).prop("disabled", false)
+    console.log(i)
+
+   }
+ // }
+ }
+ var i = m.indexOf(parseInt(assessment_id))
+ $(this).removeClass("btn-outline-" + l[i])
+ $(this).addClass("btn-" + l[i])
+ $(this).prop("disabled", true)
+})
+
+  var base_autocomplete_url = "<%= raw autocomplete_genes_path(:article_key => @article.key) %>"
+
+  //  add_autocomplete_select_event($("#assertion_content"))
+  <%= render :partial => 'shared/autocomplete_js', :locals => {:text_field => "#assertion_content"} %>
+
+  $("#assertion_content").focus()
+  
+  $("#create-assertion-btn").click(function(){
+   submit_assertion()
+  })
+
+  $("#assertion_content").keydown(function(e){
+   //console.log(e.key)
+   if (e.key == 'Enter'){
+    e.preventDefault();
+    submit_assertion()
+    return false
+   }   
+  })
+
+  $("#assertion_content").keyup(function(e){
+   if (e.key != 'Enter'){
+    upd_tags(e, this, base_autocomplete_url, true)   
+    upd_assertion_display($(this).val(), $("#assertion_preview"))
+   }
+  })
+
+  function submit_assertion(){
+
+   if ($("#assertion_content").val() != '' || $("#assertion_type").val() == 'assessment'){
+   <%  if action_name == 'edit' %>
+    var form = $('#edit_assertion_<%= @assertion.id %>')[0];
+   <% else %>
+    var form = $('#new_assertion')[0];
+   <% end %>
+    var p = new FormData(form);
+  p.append('article_key', '<%= @article.key %>')
+  p.append('assertion[assertion_type_id]', '<%= @assertion_type.id %>')
+  p.append('assertion[content]', $("#assertion_content").val())
+  p.append('assertion[all_tags_json]', $("#all_tags_json").val())
+    /*[
+     {name : 'article_key', value : '<%= @article.key %>'},
+     {name : 'assertion[assertion_type_id]', value : '<%= @assertion_type.id %>'},
+     {name : 'assertion[content]', value : $("#assertion_content").val()},
+     {name : 'assertion[all_tags_json]', value : $("#all_tags_json").val()}
+    ]*/
+    <% if @assertion_type.can_attach_file %>
+//     p.push({name : 'file', value : $("#file").val()})
+jQuery.each(jQuery('#file')[0].files, function(i, file) {
+    p.append('file', file);
+});
+    <% end %>
+    <% if @assertion_type.name == 'assessment' %>
+//     p.push({name : 'assertion[assessment_type_id]', value : $("#assertion_assessment_type_id").val()})
+      p.append('assertion[assessment_type_id]', $("#assertion_assessment_type_id").val())
+    <% end %>
+    <% if  params[:to_refresh_assertion_type_id] %>
+//     p.push({name : 'to_refresh_assertion_type_id', value : <%= params[:to_refresh_assertion_type_id] %>})
+    p.append('to_refresh_assertion_type_id', <%= params[:to_refresh_assertion_type_id] %>)
+    <% elsif params[:refresh_side_panel] %>
+//     p.push({name : 'refresh_side_panel', value : <%= params[:refresh_side_panel] %>})
+    p.append('refresh_side_panel', '<%= params[:refresh_side_panel] %>')
+    <% end %>
+    <% if  params[:complement_id] %>
+//      p.push({name : 'complement_id', value : <%= params[:complement_id] %>})
+     p.append('complement_id', <%= params[:complement_id] %>)
+    <% end %>
+  <% if action_name == 'edit' and @assertion_type.name != 'comment' %>
+//   p.push({name : 'minor', value : $("#minor").prop("checked")})
+    p.append('minor', $("#minor_check").prop("checked"))
+  <% end %>
+ 
+  
+    $("#create-assertion-btn").attr("disabled", "disabled")
+    <% if action_name == 'new' %>
+    $("#create-assertion-btn").html("<i class='fa fa-pulse fa-spinner'></i> Creating <%= @assertion_type.name.gsub("_", " ") %>")
+    refresh_post(null, "<%= assertions_path(assertion) %>", p, 'post', {multipart : true})
+    <% elsif action_name == 'edit' %>
+    $("#create-assertion-btn").html("<i class='fa fa-pulse fa-spinner'></i> Updating <%= @assertion_type.name.gsub("_", " ") %>")
+    refresh_post(null, "<%= assertion_path(assertion) %>", p, 'put', {multipart : true})
+    <% end %>
+   }
+  } 
+
+ upd_tags(null, "#assertion_content", base_autocomplete_url, false)
+ upd_assertion_display($("#assertion_content").val(), $("#assertion_preview"))
+
+<% end %>

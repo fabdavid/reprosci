@@ -1,0 +1,2 @@
+module AbuseReportTypesHelper
+end

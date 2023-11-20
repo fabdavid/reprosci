@@ -1,0 +1,53 @@
+<ul class='no-bullets'>
+<li>
+  <div class='row'>
+     <span class='label_field'>
+       PMID
+     </span>
+     <span>
+        <%= @article.pmid %>
+     </span>
+  </div>
+</li>
+
+<li>
+  <div class='row'>
+     <span class='label_field'>
+       Authors
+     </span>
+     <span>
+        <%= authors = @article.authors.split(";").select{|e| !e.strip.empty?}; raw authors.map{|a| "<span class='badge badge-info'>#{a}</span>"}.join(" ") %>
+     </span>
+  </div>
+</li>
+<li>
+  <div class='row'>
+     <span class='label_field'>
+       Title
+     </span>
+     <span>
+        <%= raw @article.title %>
+     </span>
+  </div>
+</li>
+<li>
+  <div class='row'>
+     <span class='label_field'>
+       Journal
+     </span>
+     <span>
+        <%= (j = @article.journal) ? j.name : 'NA' %>
+     </span>
+  </div>
+</li>
+<li>
+  <div class='row'>
+     <span class='label_field'>
+       Year
+     </span>
+     <span>
+    <%= @article.year %>
+     </span>
+  </div>
+</li>
+</ul>

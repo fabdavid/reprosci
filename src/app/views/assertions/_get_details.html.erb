@@ -1,0 +1,109 @@
+<!--<div class='side_panel_fixed_container'>
+    <ul class="nav nav-tabs" id="side_panel-nav" role="tablist">
+      <% [].each do |e| %>
+      <li class="nav-item">
+	<a class="nav-link nav-link-success <%= (@active_tab == e) ? 'active' : '' %>" id="<%= e %>-<%= @h_rel_types_by_name[e].id %>-tab" data-toggle="tab" href="#pane-<%= e %>" role="tab" aria-controls="<%= e %>" aria-selected="true">
+	  <i class='<%= @h_rel_types_by_name[e].icon_classes || '' %>'></i>
+	  <span class='badge badge-secondary'><%= display_rel_count(@h_rels, e, @assertion.id) %></span>
+	  <br/>
+	<%= e.capitalize.pluralize %>
+	</a>
+      </li>
+      <% end %>
+    </ul>
+</div>
+-->
+
+<div id='side_panel_tab-content' class="tab-content">
+  <% ['comment'].each do |e| %>
+  <div class="tab-pane <%= (@active_tab == e) ? 'active' : '' %>" id="pane-<%= e %>" role="tabpanel" aria-labelledby="<%= e %>-tab">
+    
+    <% if commentable? @workspace and e == 'comment' %>
+    <div class='side_panel_btn_fixed_container'>
+      <button type='button' id='add_rel_<%= @assertion.id %>_<%= @h_rel_types_by_name[e].id %>' class='btn btn-xs btn-secondary add_rel'><i class='fa fa-plus'></i> Add <%= e %></button>
+    </div>
+    <% end %>
+    <!--    
+	    <div id='form_new_<%= e %>'>
+	      <%= render :partial => 'form_new_rel', :locals => {:rel_type_name => e} %>
+	    </div>
+	    -->
+  </div>
+  <% end %>
+  
+  <% ['comment'].each do |e| %>
+  <div class="tab-pane <%= (@active_tab == e) ? 'active' : '' %>" id="pane-<%= e %>" role="tabpanel" aria-labelledby="<%= e %>-tab">
+    
+     <% if @h_rels[:by_compl][e] and @h_rels[:by_compl][e][@assertion.id] %>
+
+
+    <div class=''>
+      <b>List of <%= e.pluralize %></b>
+    </div>
+    
+    <% if readable? @workspace %>
+    <ul id='list_<%= e %>' class='no-bullets pl-0 mt-4'>
+      <%# if @h_rels[:by_compl][e] and @h_rels[:by_compl][e][@assertion.id] %>
+      <% @h_rels[:by_compl][e][@assertion.id].each do |subject_id| %>
+      <li class='mt-2'>
+	<div class='card'>
+	  <div class='card-body'>
+	    
+	    <div class='float-right'>
+	      <% if @h_assertions[subject_id].assessment_type_id %>
+	      <span class='<%= @h_assessment_types[@h_assertions[subject_id].assessment_type_id].btn_classes %>'>
+		<i class='<%= @h_assessment_types[@h_assertions[subject_id].assessment_type_id].icon_classes %>'></i> 
+		<%= @h_assessment_types[@h_assertions[subject_id].assessment_type_id].name %>
+	      </span>
+	      <% end %>
+	    </div>
+	    
+	    <div class='card-title'>
+	      <%= raw display_assertion(@h_assertions[subject_id], @h_assertion_types[@h_assertions[subject_id].assertion_type_id]) %>	      
+            </div>
+	    <% filename = @attachment_dir + (subject_id.to_s + "." + ((@h_assertions[subject_id].ext) ? @h_assertions[subject_id].ext : 'NA')) %>
+            <% if @h_assertion_types[@h_assertions[subject_id].assertion_type_id].can_attach_file == true and @h_assertions[subject_id].ext and  File.exist?(@attachment_dir + (subject_id.to_s + "." + @h_assertions[subject_id].ext)) %>
+            <a href='<%= get_file_workspace_path(:key => @workspace.key, :p => (subject_id.to_s + "." + @h_assertions[subject_id].ext), :type => 'attachment') %>' class='btn btn-primary btn-sm'>Download <%= @h_assertions[subject_id].ext %> file</a>
+	    <% end %>
+	    
+	    <div class='float-right mt-2'>
+	      <% if annotable? @workspace or (commentable? @workspace and @h_assertions[subject_id].assertion_type_id == 7 and @h_assertions[subject_id].user_id == current_user.id) %>
+	      <button type='button' id='edit_assert_<%= subject_id %>' class='btn btn-xs btn-outline-secondary edit_assert assert_action'><i class='fas fa-pen'></i> Edit</button>
+	      <button type='button' id='del_rel_<%= subject_id %>_<%= @assertion.id %>_<%= @h_rel_types_by_name[e].id %>' class=' btn btn-xs btn-outline-danger del_rel assert_action'><i class='fa fa-times-circle'></i> Delete</button>
+	      <% end %>
+	    </div>
+	    <% if @h_last_assertion_version[subject_id] %>
+	    <% u =  @h_assertions[subject_id].user %>
+	    <% ou = @h_assertions[subject_id].orcid_user %> 
+            <p class='font-italic mt-1'>Last change <%= raw display_date_short(@h_last_assertion_version[subject_id].created_at) %> by 
+	      <%# raw ((ou and ou.name) ? (ou.name + " <span class='nowrap'>" + image_tag('orcid.svg', :width => '20px') + " <i>" + link_to(ou.key, "https://orcid.org/#{ou.key}") + "</i></span>") : 'Anonymous') %>
+<%= raw display_user(u, ou) %>
+	      <%# (u.username and !u.username.strip.empty?) ? u.username : ((ou and ou.name) ? (ou.name + " <i>[#{ou.key}]</i>") : 'Anonymous') %></p>
+	    <% end %>
+	  </div>
+	</div>
+      </li>
+      <%# end %>
+      <% end %>
+    </ul>
+    <% end %>    
+    <% else %> 
+    <i>No <%= e.pluralize %> yet</i>
+    <% end %>
+    
+  </div>
+  <% end %>
+  
+</div>
+
+
+<%= javascript_tag do %>
+
+$("#side_panel_title").html("<b><%# raw @h_assertion_types[@assertion.assertion_type_id].name.capitalize.gsub("_", " ") %>Comments</b>")
+$("#selected_assertion_id").val(<%= @assertion.id %>)
+var assertion_text = $("#assertion_li_<%= @assertion.id %>").find(".assertion-content").first()
+$(assertion_text).css({'text-decoration' : 'underline', 'font-weight' : 'bold'})
+
+<% end %>
+
+

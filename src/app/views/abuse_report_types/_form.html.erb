@@ -1,0 +1,24 @@
+<%= form_with(model: abuse_report_type, local: true) do |form| %>
+  <% if abuse_report_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(abuse_report_type.errors.count, "error") %> prohibited this abuse_report_type from being saved:</h2>
+
+      <ul>
+      <% abuse_report_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <table width="100%">
+    <tr>
+      <td>Name</td>
+      <td><%= form.text_field :name, {:class => 'form-control'} %></td>
+    </tr>
+  </table>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,129 @@
+<div class='alert alert-success'>
+  <h3>
+  <div class='float-right'>
+    <% if editable? @workspace or shareable? @workspace %>
+    <span class='settings_btn pointer'><i class='fa fa-cog'></i></span> 
+    <% end %>
+  </div>
+  <%= @workspace.name %>
+  <% @share.to_json %>
+  </h3>
+</div>
+
+<nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link <%= (params[:tab] == 'articles') ? 'active' :  '' %>" id="nav-articles-tab" data-toggle="tab" href="#nav-articles" role="tab" aria-controls="nav-articles" aria-selected="false">Articles</a>
+    <a class="nav-item nav-link <%= (params[:tab] == 'assertions') ? 'active' :  '' %>" id="nav-assertions-tab" data-toggle="tab" href="#nav-assertions" role="tab" aria-controls="nav-assertions" aria-selected="false">Claims & comments</a>
+    <a class="nav-item nav-link <%= (params[:tab] == 'description') ? 'active' :  '' %>" id="nav-description-tab" data-toggle="tab" href="#nav-description" role="tab" aria-controls="nav-description" aria-selected="true">Description</a>
+    <a class="nav-item nav-link <%= (params[:tab] == 'home') ? 'active' :  '' %>" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Contributors</a>
+    <a class="nav-item nav-link <%= (params[:tab] == 'disclaimer') ? 'active' :  '' %>" id="nav-disclaimer-tab" data-toggle="tab" href="#nav-disclaimer" role="tab" aria-controls="nav-disclaimer" aria-selected="true">Disclaimer</a>
+       <a class="nav-item nav-link <%= (params[:tab] == 'how_to_contribute') ? 'active' :  '' %>" id="nav-how_to_contribute-tab" data-toggle="tab" href="#nav-how_to_contribute" role="tab" aria-controls="nav-how_to_contribute" aria-selected="true">How to contribute</a>
+       <% if annotable? @workspace %>
+        <a class="nav-item nav-link <%= (params[:tab] == 'stats') ? 'active' :  '' %>" id="nav-stats-tab" data-toggle="tab" href="#nav-stats" role="tab" aria-controls="nav-stats" aria-selected="true">Stats</a>
+       <% end %>
+  </div>
+</nav>
+<div class="tab-content mt-3" id="nav-tabContent">
+  <div class="tab-pane fade <%= (params[:tab] == 'articles') ? 'show active' : '' %>" id="nav-articles" role="tabpanel" aria-labelledby="nav-articles-tab">
+    <div id='search_container' class=''></div>
+  </div>
+  <div class="tab-pane fade <%= (params[:tab] == 'assertions') ? 'show active' : '' %>" id="nav-assertions" role="tabpanel" aria-labelledby="nav-assertions-tab">
+    <div id='assertions_container' class=''>
+    </div>
+  </div>
+
+  <div class="tab-pane fade <%= (params[:tab] == 'home') ? 'show active' : '' %>" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+    <div id='workspace_home' class=''>
+      <%= raw @workspace.contributors %>
+    </div>
+  </div>
+  <div class="tab-pane fade <%= (params[:tab] == 'disclaimer') ? 'show active' : '' %>" id="nav-disclaimer" role="tabpanel" aria-labelledby="nav-disclaimer-tab">
+    <div id='workspace_disclaimer' class=''>
+      <%= raw @workspace.disclaimer %>
+    </div>
+  </div>
+  <div class="tab-pane fade <%= (params[:description] == 'home') ? 'show active' : '' %>" id="nav-description" role="tabpanel" aria-labelledby="nav-description-tab">
+    <div id='workspace_description' class=''>
+      <%= raw @workspace.description %>
+    </div>
+  </div>
+    <div class="tab-pane fade <%= (params[:description] == 'how_to_contribute') ? 'show active' : '' %>" id="nav-how_to_contribute" role="tabpanel" aria-labelledby="nav-how_to_contribute-tab">
+    <div id='workspace_how_to_contribute' class=''>
+      <%= raw @workspace.how_to_contribute %>
+    </div>
+  </div>
+
+     <% if annotable? @workspace %>
+ <div class="tab-pane fade <%= (params[:description] == 'stats') ? 'show active' : '' %>" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
+    <div id='workspace_stats' class=''>
+      <div id='stats'></div>
+    </div>
+  </div>
+
+       <% end %>
+
+
+</div>
+
+<!--  <span id='details_label' class='pointer'><i id='desc_arrow' class='fa fa-arrow-right'></i> details</span> -->
+
+
+<p id="notice"><%= notice %></p>
+
+<!--<div class='float-right'><%= link_to 'New Article', new_article_path %></div>-->
+
+<%= javascript_tag do %>
+
+$(document).ready(function(){
+
+ <% if @share and !@share.accepted_disclaimer_at %>                                                                                                                                                
+/* $("#ontop_container").html("<%= @workspace.disclaimer %>")  
+*/
+refresh("ontop_container", "<%= display_disclaimer_workspace_path(:key => @workspace.key) %>", {loading:'fa-2x'})
+ var w = $(window).width();
+ var h = $(window).height();
+ $("#content_container").addClass("hidden")
+ $("#ontop_window_close").addClass("hidden")
+ $("#ontop_window").css({}).stop().show(100) 
+
+/*.css({
+        left: 200,
+        width:w - 250,
+        height:'auto',
+        top: e.pageY + 10
+ }).stop().show(100); */
+ <% end %> 
+<% h_search_assertions_params = {:workspace_key => @workspace.key, :nolayout => 1} %>
+<% h_search_assertions_params[:free_text] = params[:q_articles] if params[:q_articles] %>
+ refresh("assertions_container", "<%= raw search_assertions_path(h_search_assertions_params) %>", {loading:'fa-2x'})
+
+ $("#details_label").click(function(){
+  if ($("#desc_arrow").hasClass("fa-arrow-right")){
+   $("#desc_arrow").removeClass("fa-arrow-right")
+   $("#desc_arrow").addClass("fa-arrow-down")
+  }else{
+   $("#desc_arrow").removeClass("fa-arrow-down")
+   $("#desc_arrow").addClass("fa-arrow-right")
+  }
+ $("#workspace_description").toggleClass("hidden")
+ })
+
+refresh("stats", "<%= raw get_stats_workspace_path(:key => @workspace.key, :nolayout => 1) %>", {loading:'fa-2x'});
+<% h_search_article_params = {:workspace_key => @workspace.key, :nolayout => 1} %>
+<% h_search_article_params[:free_text] = params[:q_articles] if params[:q_articles] %>
+ refresh("search_container", "<%= raw search_articles_path(h_search_article_params) %>", {loading:'fa-2x'});
+
+ $(".settings_btn").click(function(){
+//  $("#ontop_window").removeClass("hidden")
+//  refresh("ontop_container", "<%= raw edit_workspace_path(:key => @workspace.key, :no_layout => 1) %>", {loading:'fa-2x'});
+window.location="<%= edit_workspace_path(:key => @workspace.key) %>"
+ })
+
+})
+
+<% end %>
+
+<% if admin? or (current_user and @workspace.user_id == current_user.id) %>
+<%# link_to 'Edit', edit_workspace_path(@workspace) %>
+<%# link_to 'Back', workspaces_path %>
+<% end %>

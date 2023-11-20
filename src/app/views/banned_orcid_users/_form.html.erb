@@ -1,0 +1,17 @@
+<%= form_with(model: banned_orcid_user, local: true) do |form| %>
+  <% if banned_orcid_user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(banned_orcid_user.errors.count, "error") %> prohibited this banned_orcid_user from being saved:</h2>
+
+      <ul>
+      <% banned_orcid_user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

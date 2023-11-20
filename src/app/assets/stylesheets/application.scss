@@ -1,0 +1,205 @@
+// Custom bootstrap variables must be set or imported *before* bootstrap.
+@import "variables";
+@import 'fontawesome-all';
+//@import "font-awesome";
+@import "bootstrap";
+@import "jquery-ui/core";
+
+
+.hidden {display:none}
+.nowrap {white-space:nowrap}
+.underline {text-decoration:underline}
+#main {margin-bottom:100px; margin-left:10px; margin-right:10px; margin-top:20px}
+
+.badge-tag {cursor:pointer}
+.badge-tag1 {border:2px solid #f8f9fa;}
+.badge-tag1:hover {background-color:rgba(13, 132, 134, 0.8)}
+.badge-tag2 {border:2px solid black;}
+.badge-tag2:hover {background-color:rgb(220, 220, 220)}
+.badge-tag1-link {color:white}
+.badge-tag1-link:hover {color:white}
+.badge-tag1-link:visited {color:white}
+.badge-tag2-link {color:black}
+.badge-tag2-link:hover {color:black}
+.badge-tag2-link:visited {color:black}
+
+.pointer {cursor:pointer}
+
+#share_table tr th{padding-right:15px}
+
+//#thumbnails_content {height:500;overflow-y:scroll}
+.thumbnail_container {border:1px solid grey;margin:1em;padding:0.5em}
+.attr_label {font-weight:bold}
+.sel_thumbnail_container {border-color:black}
+
+.label_field {width:200px}
+ul.no-bullets {list-style-type: none}
+#annotation {position:fixed;right:0;top:150;overflow-y:scroll}
+
+.btn-group-xs > .btn, .btn-xs {
+  padding: .25rem .4rem;
+  font-size: .875rem;
+  line-height: .5;
+  border-radius: .2rem;
+}
+
+.side_panel_btn_fixed_container {position:fixed; background-color:white;z-index:11;margin:0px;padding-right:15px;right:10px;top:150px} 
+.side_panel_fixed_container {position:fixed; background-color:white;z-index:10;width:590px;right:5;margin:0px;padding-left:5px;padding-top:15px;padding-bottom:60px}
+#side_panel-nav {}
+#side_panel_tab-content {margin: 15px;} 
+
+#ontop_window {position:fixed;z-index:100020; top:50px; right:0px; left:0px; bottom:0px; border:1px solid grey;
+               background-color:rgb(210, 210, 210) //background-image:url(/assets/grey_transparent.png);
+	       }
+#ontop_window .title {padding:15px}
+.window_close {position:absolute; right:0px; top:0px; font-size:20px; margin-top:5px; margin-right:10px; cursor:pointer; z-index:100030}
+
+#ontop_popup_window {
+    position: absolute;
+    z-index:1000000;
+    margin-right:15px;
+    padding:20px;
+    display: none;
+    background: #ccc;
+    border: 1px solid;
+    border-radius: .5rem;
+    cursor:hand
+}
+#ontop_popup_window_close {float:right; font-size:20px; margin-top:-17px; margin-right:-13px; cursor:pointer}
+
+#ontop_autocomplete_window {
+    position: absolute;
+    z-index:1000001;
+    margin-right:15px;
+    padding:20px;
+    display: none;
+    background: #FFF;
+    border: 1px solid;
+    border-radius: .5rem;
+    cursor:hand
+}
+#ontop_autocomplete_window_close {float:right; font-size:20px; margin-top:-17px; margin-right:-13px; cursor:pointer}
+
+#side_panel {
+z-index:10001;
+position:fixed;
+width:600px;
+max-width:1000px;
+min-width:300px;
+max-height:calc(100% - 110px);
+/*min-height:200px; */
+height:calc(100% - 110px);
+top:100px;
+right:-600px;
+border-color:grey
+}
+
+#side_panel_content {
+margin:0px;
+padding:0px;
+overflow-y:scroll;
+overflow-x:hidden
+}
+
+/* CARD DECKS */
+
+.card_std {
+ cursor:pointer
+}
+
+@each $name, $breakpoint in $grid-breakpoints {
+      @media (min-width: $breakpoint) {
+
+             .card-deck .card_std {
+                              flex: 0 0 calc(#{100/map-get($cards-per-line, $name)}% - #{$grid-gutter-width});
+                                    }
+
+        }
+}
+
+/* sortable jquery OL */
+
+.assert-card {
+/* min-height:120px */
+}
+
+.assert_handle_drag {
+/* min-height:120px; */
+}
+
+.move {cursor:move}
+
+.handle_drag {
+  min-width:20px; 
+  max-width:20px;
+  margin-top:-20px; 
+  margin-bottom:-20px;
+  margin-left:-5px;
+  border-radius: 5px 0px 0px 5px;
+  cursor:move;
+  padding:3px
+}
+
+.assert_ol .handle_drag{
+  background-color:rgba(13, 132, 134, 0.8); 
+}
+
+.assert_btns{
+  padding:15px;
+  min-width:200px;
+  max-width:200px;
+/*  border-radius: 5px;
+  background-color:rgba(235, 235, 235, 0.8); */
+}
+
+.rel_ol .handle_drag{
+  background-color:rgba(200, 200, 200, 0.8);
+}
+
+body.dragging, body.dragging * {
+  cursor: move !important;
+}
+
+.dragged {
+  position: absolute;
+  opacity: 0.5;
+  z-index: 2000;
+}
+
+ol.std li.placeholder {
+  position: relative;
+  /** More li styles **/
+
+}
+ol.std li.placeholder:before {
+  position: absolute;
+  /** Define arrowhead **/
+      content: "";
+      width: 0;
+      height: 0;
+      margin-top: -5px;
+      left: -5px;
+      top: -4px;
+      border: 5px solid transparent;
+      border-left-color: $error;
+      border-right: none
+}
+
+/* buttons */
+
+.assert_action{ cursor:pointer }
+
+.at-btn.btn-success:hover {background-color:white;color:#28a745}
+
+@media (max-width: 767px) {
+/*
+.handle_drag {
+  width:100%;
+  height:25px;
+  margin-top:-20px;
+  margin-left:-5px;
+  border-radius: 5px 5px 0px 0px;
+  cursor:move
+}
+*/
+}

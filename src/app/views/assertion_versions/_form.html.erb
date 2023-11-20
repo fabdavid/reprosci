@@ -1,0 +1,17 @@
+<%= form_with(model: assertion_version, local: true) do |form| %>
+  <% if assertion_version.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(assertion_version.errors.count, "error") %> prohibited this assertion_version from being saved:</h2>
+
+      <ul>
+      <% assertion_version.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

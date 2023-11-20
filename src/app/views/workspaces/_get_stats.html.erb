@@ -1,0 +1,48 @@
+<div class='float-right'>
+<%= link_to 'List of assessments', get_stats_workspace_path(:key => @workspace.key, :format => "text", :type => 'assessment'), :class => 'btn btn-primary' %>
+<%= link_to 'List of evidences', get_stats_workspace_path(:key => @workspace.key, :format => "text", :type => 'evidence'), :class => 'btn btn-primary' %>
+<%= link_to 'List of comments', get_stats_workspace_path(:key => @workspace.key, :format => "text", :type => 'comment'), :class => 'btn btn-primary' %>
+</div>
+<h5>Stats</h5>
+
+<%# @h_assertions_by_type.keys.map{|k| @h_assertion_types[k].name + " => " + @h_assertions_by_type[k].size.to_s} %>
+<br/>
+
+<table>
+<thead>
+  <tr>
+    <th>Title</th>
+    <th>Number</th>
+  </tr>
+</thead>
+<tbody> 
+<tr><td>Number of articles</td><td><%= @articles.size %></td></tr>
+<% @assertion_types.select{|at| @h_assertions_by_type[at.id]}.each do |at| %>
+<tr><td>Number of <%= @h_assertion_types[at.id].label.pluralize.downcase %></td><td><%= @h_assertions_by_type[at.id].size %></td></tr>
+<% end %>
+</tbody>
+</table>
+
+
+<br/><br/>
+
+<table>
+<thead>
+  <tr>
+    <th>Claim type</th>
+    <th>Assessment type</th>
+    <th>Number</th>
+  </tr>
+</thead>
+<tbody>
+<% @assessement_type_by_claim_type.each_key do |k1| %>
+<% @assessement_type_by_claim_type[k1].each_key do |k2| %>
+<tr>
+<td><%= @h_assertion_types[k1].label %></td>
+<td><%= @h_assessment_types[k2].name %></td>
+<td><%= @assessement_type_by_claim_type[k1][k2].size %></td>
+</tr>
+<% end %>
+<% end %>
+</tbody>
+</table>

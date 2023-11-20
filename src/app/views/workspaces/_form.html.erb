@@ -1,0 +1,69 @@
+<%= form_for(workspace, url: workspace_path(:key => workspace.key), local: true) do |form| %>
+  <% if workspace.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(workspace.errors.count, "error") %> prohibited this workspace from being saved:</h2>
+
+      <ul>
+      <% workspace.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <label for="workspace_name">Name</label>
+    <%= form.text_field :name, {:placeholder => 'Workspace name', :class => 'form-control'} %>
+  </div>
+
+  <div class="form-group">
+    <label for="workspace_contributors">Authors / Contributors</label>
+    <%= form.text_area :contributors, {:rows => 8, :placeholder => 'Workspace authors / contributors; Information for future contributors; How to cite?', :class => 'form-control'} %>
+  </div>
+
+  <div class="form-group">
+    <label for="workspace_disclaimer">Disclaimer</label>
+    <%= form.text_area :disclaimer, {:rows => 8, :placeholder => 'Workspace disclaimer', :class => 'form-control'} %>
+  </div>
+  <div class="form-group">
+    <label for="workspace_description">Description</label>
+    <%= form.text_area :short_description, {:rows => 8, :placeholder => 'Workspace short description (displayed in workspace search results)', :class => 'form-control'} %>
+  </div>
+
+
+  <div class="form-group">
+    <label for="workspace_description">Description</label>
+    <%= form.text_area :description, {:rows => 8, :placeholder => 'Workspace description', :class => 'form-control'} %>
+  </div>
+
+  <div class="form-group">
+    <label for="workspace_how_to_contribute">How to contribute</label>
+    <%= form.text_area :how_to_contribute, {:rows => 8, :placeholder => 'How to contribute', :class => 'form-control'} %>
+  </div>
+
+
+<!--  
+  <div class="form-group">
+    <label for="workspace_description">Description</label>
+    <%= form.text_field :name, {:placeholder => 'Workspace name', :class => 'form-control'} %>
+  </div>
+-->
+
+  <% if controller.action_name == 'edit' %>
+  <div id='share_container'>
+    <%= render :partial => 'shares' %>
+  </div>
+  <% end %>
+
+  <div class="actions">
+    <% button_name = (controller.action_name == 'new') ? "Create Workspace" : "Apply changes" %>
+    <button type='submit' id='submit_workspace_button' class='btn btn-primary ladda-button mt-2'><%= button_name %></button>
+  </div>
+
+<% end %>
+
+<%= javascript_tag do %>
+
+
+
+<% end %>

@@ -1,0 +1,6 @@
+<% if readable?(@workspace) %>
+<%= render :partial => 'search_form' %>
+<% else %>
+<%= @workspace.to_json %>
+Not authorized.
+<% end %>

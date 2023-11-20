@@ -1,0 +1,6 @@
+<% if annotable? @workspace %>
+
+<h5 class='mt-2'><b>New <%= rel_type_name %></b></h5> 
+Search paper <%= text_field_tag "article_search_text", '', {:class => 'form-control'} %>
+
+<% end %>

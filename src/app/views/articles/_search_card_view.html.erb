@@ -1,0 +1,80 @@
+<div class='card-deck mt-4'>
+  <% articles.each do |a| %>
+  <div id='art_card_<%= a.key %>' class='card art_card card_std mb-4'>
+    <div class='card-body'>
+    <div class='card-title'> 
+     <div class='float-right' style='text-align:right'>
+       <% if annotable?(@workspace) %>
+<!--       <button type='button' id='del_article_<%= a.key %>' class=' btn btn-xs btn-outline-danger del_article'><i class='fa fa-times-circle'></i></button>-->
+<%# link_to raw("<i class='fa fa-times-circle'></i>"), a, method: :delete, data: { confirm: 'Are you sure?' } %>
+       <% end %>
+     </div>
+     <%= link_to raw(display_ref(a)), article_path(:key => a.key) %><br/>	
+     <small>
+       <% if j = @h_journals[a.journal_id] %>
+       <% t = j.name.split(/[\:.]/) %>
+       <%= raw (j.tag) ? j.tag : t[0] %>
+       <% end %>
+     </small>      
+    </div>
+      <span class=''><%= raw a.title %></span>
+    </div>
+    <div class='card-footer'>
+      <% if @h_nber[:claim][a.id] %>
+      <span class='badge badge-info'><%= @h_nber[:claim][a.id] %> claim<%= ( @h_nber[:claim][a.id] > 1 ) ? 's' : '' %></span>
+      <% else %>
+      <span class='badge badge-danger'>No claim yet</span>
+      <% end %>
+      <% [:evidence, :assessment, :comment].each do |k| %>
+      <% if @h_nber[k][a.id] %>
+       <span class='badge badge-light'><%= @h_nber[k][a.id] %> <%= ( @h_nber[k][a.id] > 1 ) ? k.to_s.pluralize : k.to_s %></span>
+      <% end %>
+      <% end %>
+      <br/>
+      <small><i>Last update: <%= (a.assertion_updated_at) ? raw(display_date_short(a.assertion_updated_at)) : 'NA' %></i></small>
+    </div>
+  </div>
+  <% end %>
+</div>
+
+<%= javascript_tag do %>
+/*
+$(".del_article").click(function(){
+  e.stopPropagation();
+  e.preventDefault();
+if (confirm('Are you sure you want to delete this article?')) {
+ let t = this.id.split("_")
+ $.ajax({
+  url: "<%= articles_path() %>/" + t[2],
+  type: "delete",
+  data: [{name : 'format', value: 'json'}],
+  beforeSend: function(){
+   $("#popup_window").html("<div class='loading d-flex justify-content-center'><i class='fa fa-spinner fa-pulse fa-fw fa-lg fa-2x'></i> <i>Please wait while deleting this article</i></div>")
+  },
+  success: function(returnData){
+  $("#popup_window").css({display:'none'})
+  var p = [{name : 'free_text', value : $("#free_text").val()}]
+  var h = {loading:'fa-2x'}
+  search(p, h)
+  },
+  error: function(e){
+  }
+ });
+}
+
+})
+*/
+$(".art_card").click(function(){
+ var t = this.id.split("_")
+ window.location="<%= articles_path() %>/" + t[2] + "?tab=articles"
+})
+$(".art_card").mouseover(function(){
+ $(this).css("border-color", 'rgba(0,0,0,0.425)')
+ $(this).css("background-color", 'rgba(255,255,230,0.425)')
+})
+$(".art_card").mouseout(function(){
+ $(this).css("border-color", 'rgba(0,0,0,0.125)')
+ $(this).css("background-color", '')
+})
+
+<% end %>

@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Rel Types</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @rel_types.each do |rel_type| %>
+      <tr>
+        <td><%= link_to 'Show', rel_type %></td>
+        <td><%= link_to 'Edit', edit_rel_type_path(rel_type) %></td>
+        <td><%= link_to 'Destroy', rel_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Rel Type', new_rel_type_path %>

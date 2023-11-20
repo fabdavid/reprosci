@@ -1,0 +1,66 @@
+<% if assertion_type %>
+<% claim_type = assertion_type.name.to_sym %>
+
+<div class='card mb-3'>
+  <div class='card-body'>
+
+
+    <div class='float-right'>
+      <% if annotable? @workspace %>
+      <button type='button' id='add_assert_<%= assertion_type.id %>' class='btn btn-xs btn-info add_assert'><i class='fa fa-plus'></i> Add <%= assertion_type.name.gsub("_", " ") %></button>
+      <% end %>
+    </div>
+    <h4 class='card-title'><b><%= (assertion_type.pluralize_title == true) ? assertion_type.name.capitalize.gsub("_", " ").pluralize : assertion_type.label %></b></h4>
+    
+    <% if @h_assertion_ids_by_type[claim_type] %>
+    <!-- <ul>-->
+    <ol id='ol_<%= assertion_type.id %>' class='std assert_ol'>
+      <% @h_assertion_ids_by_type[claim_type].each do |a_id| %>
+      <li id='assertion_li_<%= a_id %>'>
+        <%= render :partial => 'display_assertion', :locals => {:a_id => a_id} %>
+      </li>
+      <% end %>
+    </ol>
+    <% else %>
+    Not annotated yet
+    <% end %>
+  </div>
+</div>
+
+<% else %>
+
+<%= assertion_type.to_json %>
+
+<% end %>
+
+<%= javascript_tag do %>
+
+$(".assert_ol").children().each(function(i, li){
+ var h = $(li).find(".assert_btns").first().css("height")
+ $(li).find(".assert-card").css({'min-height':h})
+ $(li).find(".assert_handle_drag").css({'min-height':h})
+})
+
+$("div#assertion_type_container_<%= assertion_type.id %> ol.std").sortable({
+  handle : '.handle_drag',
+  stop: function( event, ui ) {
+    // do your stuff here.
+   var ol = ui.item.parent()
+   var assertion_type_id = $(ol).attr('id').split("_")[1]
+    console.log(ol)
+   var assertion_ids = []
+   $(ol).children().each(function(i, a){
+     assertion_ids.push($(a).attr('id').split("_")[2])
+   }) //.each(function(a){return($(a).attr('id'))}).join(',')
+   console.log(assertion_ids)
+   var p=[
+     {name: 'assertion_ids', value: assertion_ids.join(",")},
+     {name: 'assertion_type_id', value: assertion_type_id},
+     {name: 'to_refresh_assertion_type_id', value : <%= assertion_type.id %>}
+   ]
+   $("#assertion_type_container_<%= assertion_type.id %>").children().css({'background-color' : "yellow"})
+   refresh_post(null, "<%= set_assertion_order_article_path(:key => @article.key) %>", p, 'post', {})
+  }
+})
+
+<% end %>

@@ -1,0 +1,22 @@
+<%# javascript_tag do %>
+<% if @to_refresh_assertion_type.refresh_side_panel == false %>
+
+refresh("assertion_type_container_<%= @to_refresh_assertion_type.id %>", "<%= get_assertion_type_article_path(:key => @article.key, :assertion_type_id => @to_refresh_assertion_type.id) %>", {})
+
+$("#assertion_type_container_<%= @to_refresh_assertion_type.id %>").children().animate({
+      backgroundColor: "white"
+  }, 200 );
+
+<% else %>
+
+refresh("side_panel_content", "<%= raw assertions_path() %>/" + $("#selected_assertion_id").val() + "/get_details?article_key=<%= @article.key %>&rel_type_id=<%= params[:refresh_side_panel] %>", {})
+var view_rel_btn = $("#view-rel-btn_<%= params[:refresh_side_panel] %>_" + $("#selected_assertion_id").val());
+if ($(view_rel_btn).length > 0){
+ $(view_rel_btn).find(".rel_count").first().html("<small><%= Rel.joins('join assertions on (assertions.id = subject_id)').where(:complement_id => params[:complement_id], :rel_type_id => params[:refresh_side_panel], :assertions => {:obsolete => false}).count() %></small>")
+}
+
+
+<% end %>
+
+$("#ontop_popup_window").addClass('hidden');
+$("#ontop_popup_window").css({display:'none'})

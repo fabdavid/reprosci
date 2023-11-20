@@ -1,0 +1,2 @@
+class ClaimType < ApplicationRecord
+end

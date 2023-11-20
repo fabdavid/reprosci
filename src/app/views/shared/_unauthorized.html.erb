@@ -1,0 +1,9 @@
+<% if !current_user %>
+
+You need to login first. Please <%= link_to "Login", new_user_session_path() %>.
+
+<% else %>
+
+You are not authorized to access this page.
+
+<% end %>

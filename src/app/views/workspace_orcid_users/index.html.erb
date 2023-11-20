@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Workspace Orcid Users</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @workspace_orcid_users.each do |workspace_orcid_user| %>
+      <tr>
+        <td><%= link_to 'Show', workspace_orcid_user %></td>
+        <td><%= link_to 'Edit', edit_workspace_orcid_user_path(workspace_orcid_user) %></td>
+        <td><%= link_to 'Destroy', workspace_orcid_user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Workspace Orcid User', new_workspace_orcid_user_path %>

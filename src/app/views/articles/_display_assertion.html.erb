@@ -1,0 +1,167 @@
+<div class='card assert-card bg-info mb-2'>
+  <div class='card-body text-light border-info'>
+    <div class='row'>
+      <% if annotable? @workspace %>     
+      <div class='col-1 handle_drag assert_handle_drag'><i class='fas fa-grip-horizontal'></i></div>
+      <% end %>
+      <div class='col-<%= (admin?) ? 11 : 12 %>'>
+        <h5 class='card-title assertion-content'>
+	  <%= raw display_assertion(@h_assertions[a_id], @h_assertion_types[@h_assertions[a_id].assertion_type_id]) %> 
+	  <small class='font-italic'>[v<%= @h_last_assertion_version[a_id].version %>]
+	    <%= @h_assertions[a_id].id if admin? %>
+	  </small>
+	  <% filename = @attachment_dir + (a_id.to_s + "." + ((@h_assertions[a_id].ext) ? @h_assertions[a_id].ext : 'NA')) %>
+	  <%# filename %>
+	  <%# "1"  + @attachment_dir.to_s %>  
+	  <%# "2" + a_id.to_s %>
+	  <%# "3" + ((@h_assertions[a_id].ext) ? @h_assertions[a_id].ext : 'NA') %>
+	  <% if @h_assertion_types[@h_assertions[a_id].assertion_type_id].can_attach_file == true and @h_assertions[a_id].ext and File.exist?(@attachment_dir + (a_id.to_s + "." + @h_assertions[a_id].ext)) %>
+	  <a href='<%= get_file_workspace_path(:key => @workspace.key, :p => (a_id.to_s + "." + @h_assertions[a_id].ext), :type => 'attachment') %>' class='btn btn-primary btn-sm'>Download <%= @h_assertions[a_id].ext %> file</a>
+	  <% end %>
+        </h5>
+	<% if @h_assertion_types[@h_assertions[a_id].assertion_type_id].is_assessed == true %>
+	<% assessment = @h_assertions[@h_rels[:by_compl]['assessment'][a_id].select{|e_id| @h_assertions[e_id]}.first] %>
+	
+        <button id='show-assessment-btn_<%= assessment.id %>' class='btn btn-xs btn-light show-assessment-btn <%= @h_assessment_types[assessment.assessment_type_id].btn_classes %>' type="button" data-toggle="collapse" data-target="#assessment_<%= assessment.id %>" aria-expanded="false" aria-controls="assessment_<%= assessment.id %>"><b><i class='<%= @h_assessment_types[assessment.assessment_type_id].icon_classes %>'></i> <%= @h_assessment_types[assessment.assessment_type_id].name %></b></button> 
+	<% if annotable? @workspace %>
+	<button type='button' id='edit_assert_<%= assessment.id %>' class='btn btn-xs btn-light edit_assert assert_action'><i class='fas fa-pen'></i> Edit assessment</button>
+	<% end %>
+
+	<div id='assessment_<%= assessment.id %>' class='alert alert-light collapse'>
+	 <%= raw (assessment.content != '') ? display_assertion(assessment, @h_assertion_types[assessment.assertion_type_id]) : "<span class='font-italic'>To be assessed</span>" %>
+	</div>
+	<% end %>
+	<div class='float-right'>
+	  <div>
+	     <% if annotable? @workspace %>
+
+	    <button type='button' id='edit_assert_<%= a_id %>' class='btn btn-xs btn-light text-info edit_assert assert_action'><i class='fas fa-pen'></i> Edit</button>
+	    <button type='button' id='del_assert_<%= a_id %>' class=' btn btn-xs btn-light text-danger del_assert assert_action'><i class='fa fa-times-circle'></i> Delete</button>
+	    <% end %>
+	    <% if readable? @workspace %>
+	    <button type='button' id='history_<%= a_id %>' class='btn btn-xs btn-light history-btn text-info'><i class='fas fa-history'></i> History</button>
+	    <% end %>
+	    <% if annotable? @workspace %>
+	    <button type='button' id='add_rel_<%= a_id %>_1' class='btn btn-xs btn-light add_rel'><i class='fa fa-plus'></i> Add evidence</button>
+	    <!--   <button type='button' id='add_rel_<%= a_id %>_2' class='btn btn-xs btn-light add_rel'><i class='fa fa-plus'></i> Edit assessment</button> -->
+ 	    <% end %>
+	    <!--	    <% if annotable? @workspace %>
+			    <button type='button' id='add_rel_<%= a_id %>_2' class='btn btn-xs btn-light text-success add_rel' title='Assessment'><i class='fa fa-check'></i>Assess
+			    </button>
+			    <% end %>
+			    -->
+	    <% if commentable? @workspace %>
+	    <button type='button' id='view-rel-btn_3_<%= a_id %>' class='btn btn-xs btn-light text-success view-rel-btn' title='Comment'><i class='fas fa-comment'>
+	      </i>
+	      <span class='rel_count'><small><%= display_rel_count(@h_rels, 'comment', a_id) %></small></span>
+	    </button>
+	    <% end %>
+	  </div>
+	</div>
+	<div class='clear'></div>
+	<div class='mt-2'>
+	  <p class='font-italic'>Last change <%= raw display_date_short(@h_last_assertion_version[a_id].created_at) %> by 
+	    <%= raw display_user @h_assertions[a_id].user, @h_assertions[a_id].orcid_user %>
+	    <%# @h_assertions[a_id].user.username || 'Anonymous' %></p>
+	</div>
+        <% if  @h_rels[:by_compl]['evidence'] and @h_rels[:by_compl]['evidence'][a_id] %>
+        <%#  @h_rels[:by_compl]['evidence'][a_id].to_json %>
+        <ol id='ol_5' class='std rel_ol'>
+          <% @h_rels[:by_compl]['evidence'][a_id].select{|e_id| @h_assertions[e_id]}.each do |evidence_id| %>
+          <li id='assertion_li_<%= evidence_id %>'>
+            <div class='card text-sm mb-2'>
+              <div class='card-body'>
+                <div class='row'>
+                  <% if annotable? @workspace %>
+		   <div class='col-1 handle_drag text-secondary'><i class='fas fa-grip-horizontal'></i></div>
+		  <% end %>
+                  <div class='col-<%= (admin?) ? 11 : 12 %> text-dark'>
+		    <p class='assertion-content'>
+		      <%= raw display_assertion(@h_assertions[evidence_id], @h_assertion_types[@h_assertions[evidence_id].assertion_type_id]) %> 
+		      <small class='font-italic'>[v<%= @h_last_assertion_version[evidence_id].version %>]
+			<%= @h_assertions[evidence_id].id if admin? %>
+		      </small>
+ <!--                     <% if annotable? @workspace %>
+                      <span id='del_rel_<%= evidence_id %>' class='del_rel'><i class='fa fa-times-circle'></i></span>
+                      <% end %> -->
+
+		    </p>
+		    <% assessment_ids = @h_rels[:by_compl]['assessment'][evidence_id] %>
+		    <% if assessment_ids %>
+		    <% assessment = @h_assertions[assessment_ids.select{|e_id| @h_assertions[e_id]}.first] %>
+		    <button id='show-assessment-btn_<%= assessment.id %>' class='btn btn-xs btn-light show-assessment-btn <%= @h_assessment_types[assessment.assessment_type_id].btn_classes %>'  data-toggle="collapse" data-target="#assessment_<%= assessment.id %>" aria-expanded="false" aria-controls="assessment_<%= assessment.id %>"><b><i class='<%= @h_assessment_types[assessment.assessment_type_id].icon_classes %>'></i> <%= @h_assessment_types[assessment.assessment_type_id].name %></b></button>
+		    <% else %>
+		    <span class='badge badge-warning'>Something went wrong</span>
+		    <% end %>
+		    <% if annotable? @workspace %>
+		    <button type='button' id='edit_assert_<%= assessment.id %>' class='btn btn-xs btn-light edit_assert assert_action'><i class='fas fa-pen'></i> Edit assessment</button>
+		    <% end %>
+		    <div id='assessment_<%= assessment.id %>' class='alert alert-light collapse'>
+		      <%= raw (assessment.content != '') ? display_assertion(assessment, @h_assertion_types[assessment.assertion_type_id]) : "<span class='font-italic'>To be assessed</span>" %>
+		    </div>
+		    <div class='float-right mt-2'>		      
+		      <% if annotable? @workspace %>
+		      <button type='button' id='edit_assert_<%= evidence_id %>' class='btn btn-xs btn-outline-secondary edit_assert assert_action'><i class='fas fa-pen'></i> Edit</button>
+		      <button type='button' id='del_rel_<%= evidence_id %>_<%= a_id %>_1' class=' btn btn-xs btn-outline-danger del_rel assert_action'><i class='fa fa-times-circle'></i> Delete</button>
+		      <% end %>
+		      <!--
+		      <button type='button' id='view-rel-btn_2_<%= evidence_id %>' class='btn btn-xs btn-outline-success view-rel-btn' title='Confirmations'>
+			<i class='fas fa-project-diagram'></i><br/><div class='rel_count mt-1'><small><%= display_rel_count(@h_rels, 'confirmation', a_id) %></small></div>
+		      </button>
+		      <button type='button' id='view-rel-btn_3_<%= evidence_id %>' class='btn btn-xs btn-outline-danger view-rel-btn' title='Contradictions'>
+			<i class='fas fa-project-diagram'></i><br/><div class='rel_count mt-1'><small><%= display_rel_count(@h_rels, 'contradiction', a_id) %></small></div>
+		      </button>
+		      <% if commentable? @workspace %>
+		      <button type='button' id='view-rel-btn_4_<%= evidence_id %>' class='btn btn-xs btn-outline-success view-rel-btn' title='Approvals'><i class='fas fa-comment'></i>
+			 <br/><div class='rel_count mt-1'><small><%= display_rel_count(@h_rels, 'approval', a_id) %></small></div>
+		      </button>
+		      <button type='button' id='view-rel-btn_5_<%= evidence_id %>' class='btn btn-xs btn-outline-danger view-rel-btn'  title='Disapprovals'>
+			<i class='fas fa-comment'></i>
+			<br/><div class='rel_count mt-1'><small><%= display_rel_count(@h_rels, 'disapproval', a_id) %></small></div>
+		      </button>
+		      
+		      <% end %>
+
+		      -->
+
+		      <% if commentable? @workspace %>
+		      <button type='button' id='view-rel-btn_3_<%= evidence_id %>' class='btn btn-xs btn-light text-success view-rel-btn' title='Comment'><i class='fas fa-comment'></i>
+			<span class='rel_count'><small><%= display_rel_count(@h_rels, 'comment', evidence_id) %></small></span>
+		      </button>
+		      <% end %>
+		    </div>
+		    <p class='font-italic mt-1'>Last change <%= raw display_date_short(@h_last_assertion_version[evidence_id].created_at) %> by <%= raw display_user @h_assertions[evidence_id].user, @h_assertions[evidence_id].orcid_user %> <%# @h_assertions[evidence_id].user.username || 'Anonymous' %></p>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <% end %>
+        </ol>
+        <% end %>
+      </div>
+      <!--
+	  <div class='col-2 assert_btns'>
+	    <% if annotable? @workspace %>
+	    <div>
+	      <button type='button' id='edit_assert_<%= a_id %>' class='btn btn-xs btn-outline-info edit_assert assert_action'><i class='fas fa-pen'></i> Edit</button>
+	      <button type='button' id='del_assert_<%= a_id %>' class=' btn btn-xs btn-outline-danger del_assert assert_action'><i class='fa fa-times-circle'></i> Delete</button>
+	    </div>
+	    <% end %>
+	<% if annotable? @workspace %>
+	<div class='mt-2'>
+	  <button type='button' id='add_rel_<%= a_id %>' class='btn btn-xs btn-outline-secondary add_rel'><i class='fa fa-plus'></i> Add evidence</button>
+	</div>
+	<% end %>
+        <% if commentable? @workspace %>
+	<div class='mt-2'>
+          <button type='button' class='btn btn-xs btn-success'><i class='fas fa-comment-alt'></i></button>
+          <button type='button' class='btn btn-xs btn-danger'><i class='fas fa-comment-alt'></i></button>
+        </div>
+	<% end %>
+      </div> -->
+    </div>
+  </div>
+</div>
+

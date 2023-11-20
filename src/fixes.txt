@@ -1,0 +1,4 @@
+Initialize ranks
+
+ Article.joins(:assertions).all.map{|a| AssertionType.all.map{|at| RelType.all.map{|rt| rank = 1; Rel.joins("join assertions on (rels.subject_id = assertions.id)").where(:rel_type_id => rt.id, :assertions => {:article_id => a.id, :assertion_type_id => at.id}).all.map{|rel| rel.update_attributes({:subject_rank => rank}); rank+=1}}}}
+ Article.joins(:assertions).all.map{|a| AssertionType.all.map{|at| RelType.all.map{|rt| rank = 1; Rel.joins("join assertions on (rels.complement_id = assertions.id)").where(:rel_type_id => rt.id, :assertions => {:article_id => a.id, :assertion_type_id => at.id}).all.map{|rel| rel.update_attributes({:complement_rank => rank}); rank+=1}}}}

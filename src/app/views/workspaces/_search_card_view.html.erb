@@ -1,0 +1,60 @@
+<div class='card-deck mt-4'>
+  <% workspaces.each do |w| %>
+  <div id='ws_card_<%= w.key %>' class='card ws_card card_std mb-4'>
+    <div class='card-body'>
+      <div class='card-title'> 
+	<div class='float-right'>
+	  <% if 1==0 %>
+	  <% if current_user and share = Share.where(:workspace_id => w.id, :user_id => current_user.id).first %>
+	  <%= button_to 'Contributing', nil, {:disabled => true, :class => 'btn btn-success'} %>
+	  <% else %> 
+	  <%# disabled = (current_user and !readable?(w) and current_user.orcid_user) ? false : true %>
+       	  <%# button_to 'Contribute', subscribe_workspace_path(:key => w.key), {:disabled => disabled, :class => 'contribute_btn btn btn-primary'} %>
+	  <%= button_to 'Not contributing', nil, {:disabled => true, :class => 'btn btn-secondary'} %>
+	  <% end %>
+	  <% end %>
+	</div>
+	<b><%= w.name %></b>
+	<p class='mt-3'><%= w.short_description %></p>
+      </div>
+    </div>
+    <div class='card-footer'>
+      <% if @h_nber[:articles][w.id] %>
+      <!--      <span class='badge badge-info'><%= @h_nber[:articles][w.id] %> articles</span> 
+		<span class='badge badge-info'><%= @h_nber[:annot_articles][w.id] %> annotated articles</span>-->
+      <span class='badge badge-info'><%= w.nber_articles %> articles</span>
+      <span class='badge badge-info'><%= w.nber_claims %> claims</span>
+      <span class='badge badge-info'><%= w.nber_comments %> comments</span>
+      <% else %>
+      <span class='badge badge-danger'>No article yet</span>
+      <% end %>
+      <br/>
+      <small><i>Last update: <%= (w.updated_at) ? raw(display_date_short(w.updated_at)) : 'NA' %></i></small>
+    </div>
+  </div>
+  <% end %>
+</div>
+
+<%= javascript_tag do %>
+
+$(".contribute_btn").click(function(e){
+ e.preventDefault();
+ e.stopPropagation();
+window.location = this.href
+})
+
+$(".ws_card").click(function(e){
+ e.preventDefault();
+ var t = this.id.split("_")
+ window.location="<%= workspaces_path() %>/" + t[2]
+})
+$(".ws_card").mouseover(function(){
+ $(this).css("border-color", 'rgba(0,0,0,0.425)')
+ $(this).css("background-color", 'rgba(255,255,230,0.425)')
+})
+$(".ws_card").mouseout(function(){
+ $(this).css("border-color", 'rgba(0,0,0,0.125)')
+ $(this).css("background-color", '')
+})
+
+<% end %>

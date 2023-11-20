@@ -1,0 +1,66 @@
+<%# @h_nber_comments.to_json %>
+<div class='card-deck mt-4'>
+  <% assertions.each do |a| %>
+  <div id='as_card_<%= @h_articles[a.article_id].key %>' class='card as_card card_std mb-4'>
+    <div class='card-body'>
+      <div class='card-title'> 
+	<!--      <div class='float-right' style='text-align:right'> -->
+	<div class='float-right'>
+	  <% if assessment = @h_assessment_by_assertion[a.id] and assessment.assessment_type_id %>
+	  
+	  <button id='show-assessment-btn_<%= assessment.id %>' class='btn btn-xs btn-light show-assessment-btn <%= @h_assessment_types[assessment.assessment_type_id].btn_classes %>' type="button" data-toggle="collapse" data-target="#assessment_<%= assessment.id %>" aria-expanded="false" aria-controls="assessment_<%= assessment.id %>">
+	    <b>
+	      <i class='<%= @h_assessment_types[assessment.assessment_type_id].icon_classes %>'></i>
+	      <%= @h_assessment_types[assessment.assessment_type_id].name %>
+	    </b>
+	  </button>
+	  
+	  <% end %>
+	</div>
+	<p class='mb-2'>
+	<span class='badge <%= raw (['main_claim', 'major_claim', 'minor_claim', 'method'].include? @h_assertion_types[a.assertion_type_id].name) ? 'badge-info' : 'badge-light'  %>'>
+	  <%= @h_assertion_types[a.assertion_type_id].name.gsub("_", " ").capitalize %>
+	</span>
+	</p>
+	<br/>
+	<%= raw display_assertion(a, @h_assertion_types[1]) %> <%# a.assertion_type_id %>
+      </div>
+    </div>
+    <div class='card-footer'>
+      <!--<i>Last update: <%= (a.updated_at) ? raw(display_date_short(a.updated_at)) : 'NA' %></i> -->
+      <% if @h_assertion_types[a.assertion_type_id].name != 'comment' %>
+      <div class='float-right'>
+	<span class='badge badge-success'><i class='fas fa-comment'></i> <%= @h_nber_comments[a.id] %></span>
+      </div>
+      <% end %>
+      <span class='badge badge-success'><%= raw display_ref(@h_articles[a.article_id]) %></span>
+      <br/>
+      <small><i>Last update: <%= (a.updated_at) ? raw(display_date_short(a.updated_at)) : 'NA' %></i></small>
+      
+    </div>
+  </div>
+  <% end %>
+</div>
+
+<%= javascript_tag do %>
+
+$(".badge-tag").click(function(e){
+ e.preventDefault()
+<%= render :partial => 'shared/badge_tag_js' %>
+ return false
+})
+
+$(".as_card").click(function(){
+ var t = this.id.split("_")
+ window.location="<%= articles_path() %>/" + t[2] + "?tab=assertions"
+})
+$(".as_card").mouseover(function(){
+ $(this).css("border-color", 'rgba(0,0,0,0.425)')
+ $(this).css("background-color", 'rgba(255,255,230,0.425)')
+})
+$(".as_card").mouseout(function(){
+ $(this).css("border-color", 'rgba(0,0,0,0.125)')
+ $(this).css("background-color", '')
+})
+
+<% end %>

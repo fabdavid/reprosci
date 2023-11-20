@@ -1,0 +1,97 @@
+<!--<div class='card'>
+<div class='card-header card-primary'> -->
+<h4 class=''> Articles (<%= @articles.total_entries %> of <%= @h_counts[:all] %>) </h4>
+<!--</div>-->
+<!--
+<ul class="nav nav-tabs card-header-tabs" id="search_menu-nav" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link <%# (session[:article_settings][:search_type] == 'public') ? 'active' : '' %>" id="public_projects-tab" data-toggle="tab" href="#pane-public_projects" role="tab" aria-controls="public_projects" aria-selected="true">
+<b>
+Public projects (<%# @public_projects.total_entries %> of <%= @h_counts[:all_public] %>)
+</b></a>
+  </li>
+  <%# if current_user %>
+  <li class="nav-item">
+    <a class="nav-link active" id="projects-tab" data-toggle="tab" href="#pane-my_projects" role="tab" aria-controls="my_projects" aria-selected="false">
+      <b>
+        My projects (<%# @projects.total_entries %> of <%= @h_counts[:all_my] %>)
+    </b></a>
+  </li>
+  <%# end %>
+</ul>
+</div>
+-->
+<!-- <div class='card-body'>
+<div class="tab-content">
+-->
+<!--  <div class="tab-pane <%# (session[:article_settings][:search_type] == 'public') ? 'active' : '' %>" id="pane-public_projects" role="tabpanel" aria-labelledby="public_projects-tab"> -->
+
+
+<div class='float-right'>
+  <div class='float-left mr-1 pt-2'><span class=''>Page</span></div>
+  <div class='float-left'>
+    <%= text_field_tag 'article_page', session[:article_settings][:page], {:class => 'form-control mr-2 article_page', :style => 'width:60px'} %>
+  </div>
+  <div class='float-left'>
+    <div class="input-group btn-group" role="group" aria-label="nav_search_btns">
+      <button id='article_prev_btn' type="button" class="article_page_nav-btn btn btn-outline-primary" <%= "disabled='disabled'" if session[:article_settings][:page] ==1 %>><i class="fas fa-chevron-left"></i> Prev page</button>
+      <button id='article_next_btn' type="button" class="article_page_nav-btn btn btn-outline-primary" <%= "disabled='disabled'" if session[:article_settings][:page] == (@articles.total_entries.to_i / session[:article_settings][:per_page].to_i ).round + 1 %>>Next page <i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+</div>
+<% l = [5, 25, 50, 100, 500].map{|e| ["#{e} results per page", e]} %>
+<%= select_tag 'article_per_page', options_for_select(l, session[:article_settings][:per_page] || 5), {:class => 'form-control col-md-2 per_page'} %>
+
+<%= hidden_field_tag 'article_total', @articles.total_entries %>
+<%= hidden_field_tag 'article_article_ids', @articles.map{|p| p.id}.join(",") %>
+
+<%= render :partial => ("search_" + session[:article_settings][:search_view_type] + "_view"), :locals => {:articles => @articles, :type => ''} %>
+
+</div>
+
+<%= javascript_tag do %>
+$("#article_per_page").change(function(){
+ var t = this.id.split("_")
+// var type = t[0]
+ var h = {loading:'fa-2x'}
+ article_search([], h)
+})
+
+$("#search_menu-nav li .nav-link").click(function(){
+ console.log("bla")
+ var p = [{name : 'search_type', value :  this.id.split("_")[0]}];
+ refresh_post(null, "<%= set_search_session_articles_path %>", p, 'post', {})
+})
+
+$(".article_page_nav-btn").click(function(){
+ var t = this.id.split("_")
+ // var search_type = t[0]
+ var direction = t[0]
+ var cur_val = parseInt($("#article_page").val())
+ if (direction == 'prev'){
+  $("#article_page").val(cur_val - 1)
+ }else{
+  $("#article_page").val(cur_val + 1)
+ }
+ console.log("#article_page: " + $("#article_page").val())
+ var h = {loading:'fa-2x'}
+ article_search([], h)
+})
+
+$(".article_page").keyup(function(e){
+ var t = this.id.split("_")
+// var type = t[0]
+ // console.log("KEY:" + e.key)
+ if (e.key == 'Enter'){
+  // validate page #
+  if (parseInt($("#article_total").val()) < (parseInt($("#article_page").val())-1) * parseInt($("#article_per_page").val())){
+   console.log("Too high page number!")
+   $("#article_page").val(Math.round(parseInt($("#article_total").val())/parseInt($("#article_per_page").val()))+1)
+  }
+  var h = {loading:'fa-2x'}
+  article_search([], h)
+ }
+})
+
+
+<% end %>

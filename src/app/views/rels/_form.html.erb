@@ -1,0 +1,192 @@
+<%# form_with(model: rel, local: true) do |form| %>
+<%= form_for rel do |form| %>
+  <% if rel.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(rel.errors.count, "error") %> prohibited this rel from being saved:</h2>
+
+      <ul>
+      <% rel.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <% if ['confirmation', 'contradiction'].include? @rel_type.name %>
+  
+  <div class="form-group">
+    Search paper <%= text_field_tag "article_search_text", '', {:class => 'form-control'} %> 
+  </div>
+  
+  <% else %>
+
+  <% if @rel_type.name == 'comment' %>
+
+  <div class='alert mb-3 p-3' style='background-color:white'>
+     <div class='form-inline'>
+       <span class='text-secondary mr-3'>If you can assess this claim by reproducing or not the results or by citing the literature</span>
+       <button id='reprod-btn-1' type='button' class='reprod-btn btn btn-outline-success mr-2'>Verified</button>
+       <button id='reprod-btn-2' type='button' class='reprod-btn btn btn-outline-warning mr-2'>Mixed</button>
+       <button id='reprod-btn-4' type='button' class='reprod-btn btn btn-outline-danger mr-2'>Challenged</button>
+       <button id='reprod-btn-5' type='button' disabled='disabled' class='reprod-btn btn btn-secondary mr-2'>Not assessed</button>
+       <%= hidden_field_tag 'assessment_type_id', 5 %>
+     </div>
+  </div>
+
+   <div class='alert mb-3 p-3' style='background-color:white'>
+     <div class='form-inline'>
+        <span class='text-secondary mr-3'>If the assessment is based on literature, please enter the PubmedID of the paper</span>
+	<%= text_field_tag 'pmid', '', :size => 22, :class=>'form-control', :placeholder => 'Enter a PMID (e.g. 19482944)' %>
+     </div>
+   </div>
+
+  <% end %>
+
+  <div class="form-group">
+    <!--    <label for="rel_content">Name</label>-->
+    <%= text_area_tag :content, ((@subject) ? @subject.content : ''), {:placeholder => 'Enter ' + @rel_type.name.gsub("_", " "), :class => 'form-control'} %>
+  </div>
+<p id='assertion_preview'>
+</p>
+
+  <div class='alert p-3' style='background-color:white'>
+    <span class='text-secondary mr-3'>You can submit some document that supports your comment and/or assessment <i>(please note that this document will be readable by anyone who can access this workspace, which can be restricted to a community and can ultimately become public following the workspace policy)</i>:</span>
+    <% if @subject_type.can_attach_file %>
+    <%= file_field_tag :file, {:class => 'form-control'} %>
+    <% end %>
+  </div>
+<p>
+<!--    Tags : <span id='list_tags'>None</span><br/>
+     Genes : <span id='list_genes'>None</span> -->
+     <%= hidden_field_tag "all_tags_json",  ((@subject) ? @subject.all_tags_json : '[]') %>
+     <%= hidden_field_tag "cursor_pos" %>
+     <%# hidden_field_tag "assertion_type", @assertion_type.name %>
+  </p>
+
+  
+  <%= hidden_field_tag :subject_type_id, @rel_type.subject_type_id %> <!-- only evidences are created this way -->
+  <%= form.hidden_field :complement_id %>
+
+  <% if action_name == 'edit' and @rel_type.name != 'comment' %>
+  <div class="form-group">
+    <%= check_box_tag :minor_check, {:class => 'form-control'} %> Minor change (do not show in history)
+  </div>
+  <% end %>
+
+  <% end %>
+  
+  <div class="actions">
+    <button class='btn btn-primary' id='create-rel-btn' type='button'><%= (action_name == 'new') ? 'Create' : 'Update' %> <%= @rel_type.name.gsub("_", " ") %></button>
+    <%# form.submit %>
+  </div>
+  
+  <% end %>
+
+  <%= javascript_tag do %>
+
+$(".reprod-btn").click(function(){
+ console.log("toto")
+ var assessment_id = this.id.split("-")[2]
+ $("#assessment_type_id").val(assessment_id)
+ var l = ['success', 'warning', 'danger', 'secondary']
+ var m = [1, 2, 4, 5]
+
+ for (var i=0; i< m.length; i++){
+  var cur = $("#reprod-btn-" + m[i])
+ // for (var i=0; i< l.length; i++){
+   
+   if ($(cur).hasClass("btn-" + l[i])){
+    $(cur).removeClass("btn-" + l[i]);
+    $(cur).addClass("btn-outline-" + l[i])
+    $(cur).prop("disabled", false)
+    console.log(i)
+    
+   }
+ // }		   
+ }
+ var i = m.indexOf(parseInt(assessment_id))
+ $(this).removeClass("btn-outline-" + l[i])
+ $(this).addClass("btn-" + l[i])
+ $(this).prop("disabled", true)
+})
+
+  var base_autocomplete_url = "<%= raw autocomplete_genes_path(:article_key => @article.key) %>"
+
+  //  add_autocomplete_select_event($("#content"))
+  // var text_field = "#content"
+  <%= render :partial => 'shared/autocomplete_js', :locals => {:text_field => "#content"} %>
+
+  $("#content").keyup(function(e){
+   if (e.key != 'Enter'){
+    upd_tags(e, this, base_autocomplete_url, true)
+    upd_assertion_display($(this).val(), $("#assertion_preview"))
+   }
+  })
+
+  <% if ['confirmation', 'contradiction'].include? @rel_type.name %>
+  $("#create-rel-btn").prop("disabled", true)
+  <% end %>
+  
+  $("#content").focus()
+  
+  $("#create-rel-btn").click(function(){
+  submit_assertion()
+  })
+
+  $(document).keydown(function(e){
+   console.log(e.key)
+   if (e.key == 'Enter'){
+    e.preventDefault();
+    return false
+   }
+  })
+
+  $("#content").keydown(function(e){
+   console.log(e.key)
+   if (e.key == 'Enter'){
+    e.preventDefault();
+//    submit_assertion()
+   $("#create-rel-btn").click()
+   }
+  })
+
+  function submit_assertion(){
+   console.log("totoi")
+   $("#create-rel-btn").prop("disabled", true)
+   $("#create-rel-btn").html("<i class='fas fa-spinner fa-pulse'></i> <%= (action_name == 'new') ? 'Creating' : 'Updating' %>")  
+   if ($("#assertion_content").val() != ''){
+   var form = $('#new_rel')[0];
+    var p = new FormData(form);
+  p.append('article_key', '<%= @article.key %>')
+p.append('subject_type_id', $("#subject_type_id").val())
+p.append("rel[rel_type_id]", '<%= rel_type.id %>')
+/*    var p = [
+     {name : 'article_key', value : '<%= @article.key %>'},
+     {name : 'subject_type_id', value : $("#subject_type_id").val()},
+     {name : 'rel[rel_type_id]', value : '<%= rel_type.id %>'},
+     {name : 'rel[complement_id]', value : $("#rel_complement_id").val()},
+     {name : 'content', value : $("#content").val()},
+     {name : 'all_tags_json', value : $("#all_tags_json").val()}
+    ]
+*/ 
+  <% if action_name == 'edit' and @rel_type.name != 'comment' %>
+//  p.push({name : 'minor', value : $("#minor_check").prop("checked")})
+ p.append('minor', value : $("#minor_check").prop("checked"))
+  <% end %>
+
+
+    $("#create-assertion-btn").attr("disabled", "disabled")
+    $("#create-assertion-btn").html("<i class='fa fa-pulse fa-spinner'></i> Create <%= rel_type.name.gsub("_", " ") %>")
+    <% if action_name == 'new' %>
+    refresh_post(null, "<%= rels_path() %>", p, 'post', {multipart : true})
+    <% elsif action_name == 'edit' %>
+    refresh_post(null, "<%= rels_path(rel) %>", p, 'put', {multipart : true})
+    <% end %>
+   }
+  }
+
+ upd_tags(null, "#content", base_autocomplete_url, false)
+ upd_assertion_display($("#content").val(), $("#assertion_preview"))
+
+
+<% end %>

@@ -1,0 +1,2 @@
+class AssessmentType < ApplicationRecord
+end

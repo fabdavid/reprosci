@@ -1,0 +1,20 @@
+ var classes = $(this).attr("class").split(" ");
+ var gene_id = ''
+ console.log(classes)
+ for (var i=0; i< classes.length; i++){
+  var t = classes[i].split("_")
+  console.log(t)
+  if (t[0] == 'gene-id'){
+   gene_id = t[1]
+   console.log("gene_id:" + gene_id)
+  }
+ }
+ console.log("gene_id : " + gene_id)
+ var w = $(window).width()
+ var ww = 600
+ $("#ontop_autocomplete_window").css({
+        left: (w-e.pageX > ww) ? (e.pageX + 10) : w-ww+10,
+        width:ww,
+        top: e.pageY + 10
+ }).stop().show(100);
+ refresh("ontop_autocomplete_container", "<%= search_genes_path() %>?<%= raw "workspace_key=#{@workspace.key}&" if @workspace %>id=" + gene_id, {loading:true})

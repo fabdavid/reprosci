@@ -1,0 +1,17 @@
+<%= form_with(model: rel_type, local: true) do |form| %>
+  <% if rel_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(rel_type.errors.count, "error") %> prohibited this rel_type from being saved:</h2>
+
+      <ul>
+      <% rel_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

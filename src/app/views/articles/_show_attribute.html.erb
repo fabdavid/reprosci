@@ -1,0 +1,6 @@
+<%= raw article_attr[attr] %> 
+ <%= text_area_tag attr, article_attr[attr], {:class=>'form-control hidden'} %>
+<div class='float-right'>
+  <button id='edit-<%= raw attr %>' class='btn btn-sm btn-secondary attr_edit_btn'><i class='fa fa-edit'></i></button>
+  <button id='upd-<%= raw attr %>' class='btn btn-sm btn-primary attr_upd_btn hidden'>Update</button>
+</div>

@@ -1,0 +1,52 @@
+ $("#ontop_autocomplete_container").off().on("click", ".list-group-item", function(){
+//   $(".list-group-item").click(function(){
+   var res = $(this).html().split(" ")
+   var gene_id = this.id.split("_")[1]
+   var all_tags = JSON.parse($("#all_tags_json").val())
+   var full_text = $("<%= text_field %>").val()
+   var cursor_pos = $("#cursor_pos").val()
+   var after_text = full_text.substring(cursor_pos, full_text.length)                                                                     
+   //console.log("after_text: " + after_text)                                                       
+   var text = (cursor_pos != '') ? full_text.substring(0, cursor_pos) : full_text
+
+   // count matches
+   var tag_i = 0
+   if(m = text.match(/\#[\d\w\-_:]+/g)){
+     tag_i = m.length - 1
+   }
+   console.log("text:" + text)                                                                                                                                                                                                  
+   //var last_tag = all_tags[all_tags.length-1]
+   var last_tag = all_tags[tag_i]
+   //var last_tag_txt = last_tag.tag
+   var t = last_tag.val.split(":")
+   var new_tag = ''
+   if (last_tag.type == 'gene'){
+     new_tag = "#" + [last_tag.type, res[0]].join(":")
+     new_val = res[0]
+   }else{
+     new_tag = "#" + last_tag.val
+     new_val = last_tag.val     
+   }
+   console.log("last_tag_tag: " + last_tag.tag)
+   console.log("new_tag: " + new_tag)
+   // remove trailing characters in after text
+   var after_text_mod = after_text
+   var trailing_char = ''
+   if (m = after_text.match(/^[\d\w_\-:]+/)){
+     trailing_char = m[0]
+     after_text_mod = after_text.substring(trailing_char.length, after_text.length) //.replace(/^[\d\w_\-:]+/, '')
+ //    after_text_mod = after_text.replace(/^[\d\w_\-:]+/, '')
+   }
+   var new_text = text.substring(0, text.length-last_tag.tag.length + trailing_char.length) + new_tag + after_text_mod 
+   console.log(text + " => " + new_text)
+   console.log("gene_id:" + gene_id)
+   // all_tags[all_tags.length-1] = {type: last_tag.type, val: new_tag, label: res[1], db_id: gene_id}
+   all_tags[tag_i] = {type: last_tag.type, val: new_val, label: res[1], id: gene_id, tag: new_tag}
+   //upd_tag_fields(all_tags)
+   $("#all_tags_json").val(JSON.stringify(all_tags))
+   $("<%= text_field %>").val(new_text)
+   $("<%= text_field %>").prop('selectionEnd', new_text.length - after_text_mod.length);
+   $("#ontop_autocomplete_window").addClass("hidden").hide()
+   upd_assertion_display(new_text, $("#assertion_preview"))
+   $("<%= text_field %>").focus()
+ })

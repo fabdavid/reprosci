@@ -1,0 +1,17 @@
+<%= form_with(model: technique, local: true) do |form| %>
+  <% if technique.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(technique.errors.count, "error") %> prohibited this technique from being saved:</h2>
+
+      <ul>
+      <% technique.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

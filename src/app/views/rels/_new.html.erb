@@ -1,0 +1,18 @@
+<% if @rel_type.name == 'comment' %>
+<div class='alert alert-danger'>
+<span>
+  Your comment will be signed as '<%= raw display_user(current_user, current_user.orcid_user) %>'.
+  <% if current_user.username and !current_user.username.empty? %>
+  We recommend you to use your ORCID name to sign your comments but you are welcome to use any name. If you want to change your name, please remove your current username clicking <%= link_to 'here', edit_user_registration_path, {:target => '_blank'} %>.
+  <% else %>
+  If you prefer signing your comment(s) as 'anonymous' or with 'a nickname', you need to change your username by clicking <%= link_to 'here', edit_user_registration_path, {:target => '_blank'} %>. 
+  <% end %>
+  In case you use a nickname, your ORCID name will not be publicly revealed, but the administrators of the ReproSci can still access it. Please note that changing the username will affect all past comments.
+</span>
+</div>
+<% end %>
+
+<h4>New <%= @rel_type.name.gsub(/_/, ' ') %></h4>
+<p>for "<%= raw display_assertion @complement, @complement.assertion_type %>"</p> 
+<%# render :partial => "form", assertion: @assertion %>
+<%= render 'form', rel: @rel, complement: @complement, rel_type: @rel_type %>

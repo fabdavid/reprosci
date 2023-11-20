@@ -1,0 +1,15 @@
+development:
+ data_dir:
+  /mnt/reprosci/
+ data_server:
+  https://reprosci.epfl.ch/data/  
+ server_url:
+  https://reprosci.epfl.ch/
+
+production:
+ data_dir:
+  /mnt/reprosci/
+ data_server:
+  https://reprosci.epfl.ch/data/
+ server_url:
+  https://reprosci.epfl.ch/

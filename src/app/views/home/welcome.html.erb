@@ -1,0 +1,97 @@
+<% if !current_user %>
+<div class='alert alert-danger'>
+<%= link_to "Login", new_user_session_path %> if you already have an account or <%= link_to "Sign up", new_user_registration_path %> to create an account in order to fully explore and comment on the database.<!-- in order to contribute to workspaces -->
+</div>
+<% end %>
+
+<div class='row ml-3 mr-3 mb-3'>
+  <div class='card col-md-5 mr-2'>
+    <div class='card-body'>
+      <h2>ReproSci</h2>
+      Collaborative evaluation of scientific research reproducibility
+      <br/>
+
+      <p class='mt-5'>
+	The purpose of the ReproSci reproducibility project is to determine whether a wide range of claims published in a given research field are verifiable using independent sources. As a first project we applied this procedure to the field of Drosophila immunity (Fly immunity workspace).
+      </p>
+    </div>
+  </div>
+  
+  <div class='card col-md-6'>
+    <div class='card-body'>
+      <!--      The purpose of the ReproSci reproducibility project is to determine whether a wide range of claims published in a given research field are verifiable using independent sources. As a first project we applied this procedure to the field of Drosophila immunity (Fly immunity workspace).-->
+      <h5>Getting started</h5>
+      <p>A video showing how to use this web application.</p>
+      <!--      <iframe width="400" height="300" src="<%= image_url('intro.mp4') %>" frameborder="0" allowfullscreen></iframe>-->
+      <video width="400" height="300" controls>
+	<source src="<%= image_url('intro.mp4') %>" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</div>
+<div class='row ml-3 mr-3 mb-3'>
+  <div id='fly_immunity_workspace' class='pointer card col-md-8 mr-2'>
+    <div class='card-body'>
+      <div class='row'>
+	<div class='col-md-5'>
+	  <h5>Fly immunity workspace</h5>
+	  <p>The aim of the fly immunity ReproSci project is to assess the reproducibility of claims made in articles published in the field of Drosophila immunity.</p>
+	  <% @workspace = Workspace.find(1) %>
+	  <span class='badge badge-info'><%= @workspace.nber_articles %> articles</span>
+	  <span class='badge badge-info'><%= @workspace.nber_claims %> claims</span>
+	  <span class='badge badge-info'><%= @workspace.nber_comments %> comments</span>
+	  <% if 1 == 0 %>
+	  <% if current_user and share = Share.where(:workspace_id => 1, :user_id => current_user.id).first %>
+          <%# button_to 'Contributing', nil, {:disabled => true, :class => 'mt-3 btn btn-success'} %>
+          <div class='mt-3'>
+	    <span class='text-success'><i class='fa fa-check'></i> Contributing</span>
+	  </div>
+	  <% else %>
+	  <%# disabled = (current_user and !readable?(@workspace) and current_user.orcid_user) ? false : true %>
+	  <%# button_to 'Contribute', subscribe_workspace_path(:key => @workspace.key), {:id => "contribute_btn", :disabled => disabled, :class => 'mt-3 btn btn-primary'} %>
+	  <%= button_to 'Not contributing', nil, {:disabled => true, :class => 'mt-3 btn btn-secondary'} %>
+	  <% end %>
+	  <% end %>
+	</div>
+	<div class='col-md-6'>
+	  <%= image_tag 'fly_immunity.jpg', :width => '300px' %>
+	</div>
+      </div>
+    </div>
+  </div>
+  <div id='' class='card col-md-3 mr-2'>
+    <div class='card-body'>
+      <!--     
+	       <h5>Stats</h5>
+	       <span class='badge badge-info'><%= wc = Workspace.count %> workspace<%= (wc > 1) ? 's' : '' %></span>
+	       <span class='badge badge-info'><%= User.count %> registered users</span>
+	       -->
+      <h5>Release</h5>
+      <p>Users will be able to access the Fly immunity workspace from <b>July 12th, 2023</b></p>
+      <p>Creating new workspaces will be possible later.</p>
+    </div>
+  </div>
+</div>
+
+<!--<div class='row ml-3 mr-3 mt-3'>
+  <div class='card col-md-7'>
+    <div class='card-body'>
+      <h5>Getting started</h5>
+      <iframe width="560" height="315" src="<%= image_url('intro.mp4') %>" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+-->
+<%= javascript_tag do %>
+
+$("#contribute_btn").click(function(e){
+ e.preventDefault();
+ e.stopPropagation();
+ window.location= "<%= subscribe_workspace_path(:key => @workspace.key) %>"
+})
+
+$("#fly_immunity_workspace").click(function(e){
+ window.location = "<%= workspace_path(:key => '3tebs5') %>"
+})
+
+<% end %>

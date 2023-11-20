@@ -1,0 +1,2 @@
+class AssertionType < ApplicationRecord
+end
