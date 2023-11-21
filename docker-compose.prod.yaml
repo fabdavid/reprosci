@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+
+  website:
+    build: .
+    ports:
+      - "32756:3000"
+    env_file: .env.prod
+   
+  postgres:
+    build:
+        context: .
+        dockerfile: Dockerfile.db
+    env_file: .env.prod
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data

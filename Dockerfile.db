@@ -1,0 +1,7 @@
+FROM postgres:15.4
+#COPY tindex.sql.gz /docker-entrypoint-initdb.d/
+#RUN gunzip /docker-entrypoint-initdb.d/tindex.sql.gz
+#COPY tindex.sql.gz /
+#RUN gunzip /tindex.sql.gz
+#RUN psql -f /tindex.sql
+#RUN rm /tindex.sql
