@@ -203,6 +203,8 @@ class AssertionsController < ApplicationController
       @article = Article.where(:key => params[:article_key]).first
       @workspace = @article.workspace
       if annotable? @workspace
+        @h_rel_types = {}
+        RelType.all.map{|e| @h_rel_types[e.subject_type_id] = e}
         @assertion = Assertion.new(:article_id => @article.id, :assertion_type_id => params[:assertion_type_id])
         @assertion_type = AssertionType.where(:id => params[:assertion_type_id]).first
         render :partial => "new"
