@@ -4,7 +4,7 @@ class JournalsController < ApplicationController
   # GET /journals
   # GET /journals.json
   def index
-    @journals = Journal.all
+    @journals = Journal.where(:id => Article.all.map{|a| a.journal_id}).all
   end
 
   # GET /journals/1
