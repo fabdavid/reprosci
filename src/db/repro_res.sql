@@ -206,6 +206,7 @@ num int,
 workspace_id int references workspaces,
 authors text,
 affs_json text,
+author_details_json text,
 title text,
 journal_id int references journals,
 pmid int,
@@ -345,3 +346,13 @@ created_at timestamp,
 updated_at timestamp,
 primary key (id) 
 );
+
+create table authors(
+id serial,
+article_id int reference articles,
+fname 
+created_at timestamp,
+updated_at timestamp,
+primary key (id)
+
+)

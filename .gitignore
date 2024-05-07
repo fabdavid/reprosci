@@ -9,6 +9,7 @@ src/log/*
 !src/tmp/.keep
 src/vendor/bundle
 src/public/assets/*
+solr
 
 .env.dev
 .env.prod
