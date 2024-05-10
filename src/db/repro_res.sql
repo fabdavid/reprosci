@@ -107,6 +107,8 @@ obsolete bool default false,
 all_tags_json text default '[]',
 ext text,	      
 pmid text,
+main_lab text,
+large_scale bool,
 -- red_by int references users,
 -- red_at timestamp.
 created_at timestamp,
@@ -194,6 +196,7 @@ create table journals(
 id serial,
 name text,
 tag text,
+impact_factor float,
 created_at timestamp,
 updated_at timestamp,
 primary key (id)
@@ -204,7 +207,7 @@ id serial,
 key text,
 num int,
 workspace_id int references workspaces,
-authors text,
+authors_txt text,
 affs_json text,
 author_details_json text,
 title text,
@@ -347,12 +350,38 @@ updated_at timestamp,
 primary key (id) 
 );
 
+create table career_stages(
+id serial,
+name text,
+primary key (id)
+);
+
+create table expertise_levels(
+id serial,
+name text,
+primary key (id)
+);
+
 create table authors(
 id serial,
 article_id int reference articles,
-fname 
+name text,
+sex int,
+career_stage_id int references career_stages,
+leading_author bool,
+first_author bool,
+expertise_level_id int references expertise_levels,
 created_at timestamp,
 updated_at timestamp,
 primary key (id)
+);
 
-)
+create table challenge_claim_reason(
+id serial,
+assertion_id int references assertions,
+reason text,
+user_id int references users,
+created_at timestamp,
+updated_at timestamp,
+primary key (id)
+);

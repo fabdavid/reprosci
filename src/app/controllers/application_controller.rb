@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  helper_method :admin?, :superadmin?, :autorized?, :editable?, :readable?, :commentable?, :annotable?, :shareable?, :editable?, :banned_user?
+  helper_method :admin?, :read_admin?, :superadmin?, :autorized?, :editable?, :readable?, :commentable?, :annotable?, :shareable?, :editable?, :banned_user?
   before_action :init_session
   before_action :configure_permitted_parameters, if: :devise_controller?
 
@@ -13,12 +13,16 @@ class ApplicationController < ActionController::Base
     current_user and ['bbcf.epfl@gmail.com', 'hannah.westlake@epfl.ch'].include?(current_user.email)
   end
 
+  def read_admin?
+    current_user and ['bbcf.epfl@gmail.com', 'hannah.westlake@epfl.ch', 'desiree.popelka@epfl.ch', 'blandine.ribotta@epfl.ch'].include?(current_user.email)
+  end
+
   def banned_user? s, u, w
     s and (s.banned == true or (u and ou = u.orcid_user and wou = WorkspaceOrcidUser.where(:workspace_id => w.id, :orcid_user_id => ou.id).first and wou.banned == true)) 
   end
 
   def readable? p
-    admin? or (p and (p.is_public == true or 
+    admin? or read_admin? or (p and (p.is_public == true or 
                       (current_user and p.user_id ==current_user.id) or 
                       (current_user and share = p.shares.select{|s| s.user_id == current_user.id #and (s.created_at < Time.utc(2023, 06, 8) or Time.now > Time.utc(2023, 07, 04))
                        }.first and share.view_perm == true))) #or ip_restricted_access(p, request)

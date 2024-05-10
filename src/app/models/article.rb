@@ -3,15 +3,16 @@ class Article < ApplicationRecord
 #  has_and_belongs_to_many :genes
   has_many :claims
   has_many :assertions
+  has_many :authors
   belongs_to :journal
   belongs_to :workspace
   belongs_to :user
 
   searchable do
     integer :id
-    text :authors, :boost => 3
+    text :authors_txt, :boost => 3
     text :authors_unaccentuated, :boost => 3 do
-      I18n.transliterate authors
+      I18n.transliterate authors_txt
     end
     text :title,  :boost => 3
     text :abstract, :boost => 2

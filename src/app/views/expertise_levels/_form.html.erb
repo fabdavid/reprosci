@@ -1,0 +1,24 @@
+<%= form_with(model: expertise_level, local: true) do |form| %>
+  <% if expertise_level.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(expertise_level.errors.count, "error") %> prohibited this expertise_level from being saved:</h2>
+
+      <ul>
+      <% expertise_level.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <table width="100%">
+    <tr>
+      <td>Name</td>
+      <td><%= form.text_field :name, {:class => 'form-control'} %></td>
+    </tr>
+  </table>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

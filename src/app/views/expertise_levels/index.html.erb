@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Expertise Levels</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @expertise_levels.each do |expertise_level| %>
+    <tr>
+      <td><%= expertise_level.name %></td>
+        <td><%= link_to 'Show', expertise_level %></td>
+        <td><%= link_to 'Edit', edit_expertise_level_path(expertise_level) %></td>
+        <td><%= link_to 'Destroy', expertise_level, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Expertise Level', new_expertise_level_path %>

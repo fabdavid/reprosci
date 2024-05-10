@@ -18,7 +18,7 @@
     <a class="nav-item nav-link <%= (params[:tab] == 'home') ? 'active' :  '' %>" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Contributors</a>
     <a class="nav-item nav-link <%= (params[:tab] == 'disclaimer') ? 'active' :  '' %>" id="nav-disclaimer-tab" data-toggle="tab" href="#nav-disclaimer" role="tab" aria-controls="nav-disclaimer" aria-selected="true">Disclaimer</a>
        <a class="nav-item nav-link <%= (params[:tab] == 'how_to_contribute') ? 'active' :  '' %>" id="nav-how_to_contribute-tab" data-toggle="tab" href="#nav-how_to_contribute" role="tab" aria-controls="nav-how_to_contribute" aria-selected="true">How to contribute</a>
-       <% if annotable? @workspace %>
+       <% if admin? or read_admin? #annotable? @workspace %>
         <a class="nav-item nav-link <%= (params[:tab] == 'stats') ? 'active' :  '' %>" id="nav-stats-tab" data-toggle="tab" href="#nav-stats" role="tab" aria-controls="nav-stats" aria-selected="true">Stats</a>
        <% end %>
   </div>
@@ -53,15 +53,15 @@
     </div>
   </div>
 
-     <% if annotable? @workspace %>
- <div class="tab-pane fade <%= (params[:description] == 'stats') ? 'show active' : '' %>" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
-    <div id='workspace_stats' class=''>
-      <div id='stats'></div>
+    <% if admin? or read_admin? #annotable? @workspace %>
+    <div class="tab-pane fade <%= (params[:description] == 'stats') ? 'show active' : '' %>" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
+      <div id='workspace_stats' class=''>
+	<div id='stats'></div>
+      </div>
     </div>
-  </div>
-
-       <% end %>
-
+    
+    <% end %>
+    
 
 </div>
 

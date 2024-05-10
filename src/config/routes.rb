@@ -1,4 +1,12 @@
 Rails.application.routes.draw do
+  resources :expertise_levels
+  resources :career_stages
+  resources :authors do
+    collection do
+      post :upd_create
+    end
+  end
+    
   resources :comment_checks
   resources :abuse_reports
   resources :abuse_report_types
@@ -70,6 +78,7 @@ Rails.application.routes.draw do
       post :set_search_session
     end
     member do
+      get :get_author_form
       get :get_assertion_type
       post :set_assertion_order
       post :validate

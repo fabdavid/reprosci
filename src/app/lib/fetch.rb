@@ -77,7 +77,7 @@
           all_affs.push(affs)
           all_authors.push(((a.at("lastname")) ? a.at("lastname").innerHTML : '') + " " + ((a.at("initials")) ?  a.at("initials").innerHTML : ''))
         end
-        results[:authors]=all_authors.join(";")
+        results[:authors_txt]=all_authors.join(";")
         results[:affs_json] = all_affs.to_json
         #    results[:authors]+= " et al." if authors.size > 1                                                                                      
         abstract = article.at("abstract")

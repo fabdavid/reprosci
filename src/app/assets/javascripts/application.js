@@ -373,7 +373,7 @@ function refresh_post(container, url, data, method, h){
     var div= $("#" + container)
     var width = $(div).width();
     var height = $(div).height();
-
+    console.log(method)
     var h2 = {
         url: url,
         type: method,

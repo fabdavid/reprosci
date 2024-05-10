@@ -1,0 +1,36 @@
+<div class='mt-3'>
+  <b>Author details</b>
+  
+  <table id='list_of_authors' class=''>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Sex</th>
+	<th>Type</th>
+	<th>Career stage</th>
+	<th>Degree of expertise</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @authors.each do |a| %>
+      <tr>
+	<td><%= a.name %></td>
+	<td><%= raw display_sex(a.sex) %></td>
+	<td>
+	  <%= "First author" if a.first_author %>
+	  <%= "Leading author" if a.leading_author %>
+	</td>
+	<td><%= (cs_id = a.career_stage_id) ? @h_career_stages[cs_id].name : 'NA' %></td>
+	<td><%= (el_id = a.expertise_level_id) ? @h_expertise_levels[el_id].name : 'NA' %></td>
+      </tr>
+      <% end %>
+    </tbody>
+    
+  </table>
+</div>
+
+<%= javascript_tag do %>
+
+$("#list_of_authors").DataTable()
+
+<% end %>

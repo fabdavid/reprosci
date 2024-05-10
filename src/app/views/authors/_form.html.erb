@@ -1,0 +1,68 @@
+<%= form_with(id: "author_form", model: author, local: true) do |form| %>
+  <% if author.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(author.errors.count, "error") %> prohibited this author from being saved:</h2>
+
+      <ul>
+      <% author.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <table width="100%">
+    <tr>
+      <td>Name</td>
+      <td><%= author.name %><%= form.hidden_field :name %></td>
+    </tr>
+    <tr>
+      <td>Type</td>
+      <td>
+	<%= form.check_box :first_author %> First author<br/>
+	<%= form.check_box :leading_author %> Leading author
+      </td>
+    </tr>
+    <tr>
+      <td>Sex</td>
+	<% l = [["Male", '1'],["Female", '0'],["Undetermined", '2']] %>
+      <td><%= form.select :sex, l, {}, {:class => 'form-control'} %></td>
+    </tr>
+
+    <tr>
+      <td>Level of expertise</td>
+      <% l = ExpertiseLevel.all.map{|e| [e.name, e.id]} %>
+      <td><%= form.select :expertise_level_id, l, {}, {:class => 'form-control'} %></td>
+    </tr>
+    <tr>
+      <td>Stage</td>
+      <% l = CareerStage.all.map{|e| [e.name, e.id]} %>
+      <td><%= form.select :career_stage_id, l, {}, {:class => 'form-control'} %></td>
+    </tr>
+
+
+  </table>
+
+  <%= form.hidden_field :article_id %>
+  
+  
+  <div class="actions">
+    <%# form.submit 'Submit', {:class => 'btn btn-primary'} %>
+    <button id='submit-btn' type='button' class='btn btn-primary'>Submit</button>
+  </div>
+<% end %>
+
+<%= javascript_tag do %>
+
+$("#submit-btn").click(function(){
+var data = $("#author_form").serialize()
+console.log("toto:" + data)
+<% if author.id %>
+refresh_post(null, "<%= raw author_path(author.id) %>", data, 'put', {loading : 'fa-2x'})
+<% else %>
+refresh_post(null, "<%= raw authors_path() %>", data, 'post', {loading : 'fa-2x'})
+<% end %>
+})
+
+<% end %>

@@ -1,5 +1,10 @@
 module ApplicationHelper
 
+  def display_sex s
+    
+    return (s == 1) ? "Male" : ((s == 0) ? 'Female' : 'Undetermined')
+  end
+  
   def display_user u, ou
     html = ''
     if u
@@ -46,7 +51,7 @@ module ApplicationHelper
   end  
 
   def display_ref a  
-    authors =  a.authors.split(";")
+    authors =  a.authors_txt.split(";")
     html = authors.first + ((authors.size > 1) ? '<i> et al.</i>' : '') + ", " + a.year.to_s
     return html
   end

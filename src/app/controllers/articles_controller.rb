@@ -1,5 +1,5 @@
 class ArticlesController < ApplicationController
-  before_action :set_article, only: [:show, :edit, :update, :destroy, :get_assertion_type, :set_assertion_order, :validate]
+  before_action :set_article, only: [:show, :edit, :update, :destroy, :get_assertion_type, :get_author_form, :set_assertion_order, :upd_create_author, :validate]
 
   def validate
     if params[:validate] == '1'
@@ -13,7 +13,15 @@ class ArticlesController < ApplicationController
     end
   end
 
+  def get_author_form
 
+    @author = Author.where(:article_id => @article.id, :name => params[:author]).first
+    if !@author
+      @author = Author.new(:article_id => @article.id, :name => params[:author])
+    end
+    render :partial => 'authors/form', :locals => {:author => @author}
+    
+  end
 
   def set_assertion_order
     if annotable? @workspace
@@ -193,7 +201,7 @@ class ArticlesController < ApplicationController
   def create
     @workspace = Workspace.where(:key => params[:workspace_key]).first
     if @workspace and annotable? @workspace 
-      articles =  @workspace.articles
+      articles = @workspace.articles
       if params[:pmids]
         nber_before = articles.size
         Fetch.load_articles(params[:pmids].split(/[\s,;]+/), @workspace, current_user)

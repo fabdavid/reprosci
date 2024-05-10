@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Career Stages</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @career_stages.each do |career_stage| %>
+    <tr>
+      <td><%= career_stage.name %></td>
+        <td><%= link_to 'Show', career_stage %></td>
+        <td><%= link_to 'Edit', edit_career_stage_path(career_stage) %></td>
+        <td><%= link_to 'Destroy', career_stage, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Career Stage', new_career_stage_path %>

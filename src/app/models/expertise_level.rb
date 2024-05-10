@@ -1,0 +1,2 @@
+class ExpertiseLevel < ApplicationRecord
+end

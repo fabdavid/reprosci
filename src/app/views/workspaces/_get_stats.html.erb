@@ -1,3 +1,17 @@
+<!-- Major claim 	Verified 	550
+Major claim 	Challenged by reproducibility project 	11
+Major claim 	Partially verified 	75
+Major claim 	Challenged 	27
+Major claim 	Challenged by same authors 	5
+Major claim 	Reproduction in progress 	31
+Major claim 	Unchallenged, logically consistent 	105
+Major claim 	Unchallenged 	132
+Major claim 	Verified by same authors 	44
+Major claim 	Mixed 	12
+Major claim 	Unchallenged, logically inconsistent
+  -->
+
+
 <div class='float-right'>
 <%= link_to 'List of assessments', get_stats_workspace_path(:key => @workspace.key, :format => "text", :type => 'assessment'), :class => 'btn btn-primary' %>
 <%= link_to 'List of evidences', get_stats_workspace_path(:key => @workspace.key, :format => "text", :type => 'evidence'), :class => 'btn btn-primary' %>
@@ -46,3 +60,136 @@
 <% end %>
 </tbody>
 </table>
+
+Summary by group
+
+<table>
+<thead>
+  <tr>
+    <th>Claim type</th>
+    <th>Assessment type</th>
+    <th>Number</th>
+    <th>Percent</th>
+  </tr>
+</thead>
+<tbody>
+
+<% @assessement_type_by_claim_type.each_key do |k1| %>
+<% tmp_h = {} %>
+<% @assessement_type_by_claim_type[k1].each_key do |k2| %>
+<% tmp_h[@h_rev_groups[@h_assessment_types[k2].name]] ||= 0 %>
+<% tmp_h[@h_rev_groups[@h_assessment_types[k2].name]] += @assessement_type_by_claim_type[k1][k2].size %>
+<% end %>
+<% total = tmp_h.values.sum %>
+
+<% tmp_h.each_key do |k2| %>
+<td><%= @h_assertion_types[k1].label %></td>
+<td><%= k2 %></td>
+<td><%= tmp_h[k2] %></td>
+<td><%= (tmp_h[k2].to_i * 100.to_f / total).round(1) %>%</td>
+</tr>
+<% end %>
+<% end %>
+
+</tbody>
+</table>
+
+<div id='plot_irreproducibility'></div>
+<div id='plot_irreproducibility2'></div>
+
+
+Irreproducibility of major claims by journal
+
+<table id='irreproducibility_by_journal'>
+  <thead>
+    <tr>
+      <th>Journal</th>
+      <% @time_intervals.each do |e| %>
+      <th><%= e[0] || "<" %>-<%= e[1] || '>' %></th>
+      <th># <%=  e[0] || "<" %>-<%= e[1] || '>' %></th>
+      <% end %>
+      <th>Total irr</th>
+      <th>Total</th>
+      <th>Total %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @journals.select{|j| @all_claims_by_journal[j.id] or @irreproducible_claims_by_journal[j.id]}.each do |j| %>
+    <tr>
+      <td><%= j.name %></td>
+      <% total_irr = 0 %>
+      <% total = 0 %>
+      <% @time_intervals.each_index do |i| %>
+      <td><%= (@all_claims_by_journal[j.id] and @all_claims_by_journal[j.id][i].size > 0) ? ((@irreproducible_claims_by_journal[j.id]) ? (@irreproducible_claims_by_journal[j.id][i].size * 100.to_f / @all_claims_by_journal[j.id][i].size).round(1) : 0) : '' %>
+		 
+	<% total_irr+= @irreproducible_claims_by_journal[j.id][i].size %>
+	<% total+= @all_claims_by_journal[j.id][i].size %>
+	<%# (@irreproducible_claims_by_journal[j.id]) ? @irreproducible_claims_by_journal[j.id][i].size : 0 %>
+	<%# (@all_claims_by_journal[j.id]) ? @all_claims_by_journal[j.id][i].size : 0 %></td>
+<td><%= (@all_claims_by_journal[j.id] and @all_claims_by_journal[j.id][i].size > 0) ?  ((@irreproducible_claims_by_journal[j.id]) ? @irreproducible_claims_by_journal[j.id][i].size : 0) : '' %></td>
+      <% end %>
+      <td><%= total_irr %></td>
+      <td><%= total %></td>
+      <td><%= total_irr *100.to_f/total %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= javascript_tag do %>
+
+$("#irreproducibility_by_journal").DataTable()
+
+var time_intervals =<%= raw @time_intervals.to_json %>
+var irreproducible_claims = <%= raw @irreproducible_claims.to_json %>
+var all_claims = <%= raw @all_claims.to_json %>
+
+var x = []
+for (var i = 0; i < time_intervals.length; i++){
+  if (time_intervals[i][0] == null) {
+    x.push("Before " + time_intervals[i][1])		    
+		    }else{
+		    if (time_intervals[i][1] == null){
+x.push("After " + time_intervals[i][0])
+		    }else{
+x.push(time_intervals[i][0] + " to " + time_intervals[i][1])
+		    }
+		    }
+}
+
+var data = [
+
+  {
+
+    x: x,
+    y: irreproducible_claims.map((e, i) => e.length *100 / all_claims[i].length),
+    type: 'bar'
+    
+  }
+
+];
+
+  var layout = {
+  title: 'Percentage of irreproducible claims'
+ }
+
+var data2 = [
+
+  {
+
+    x: x,
+    y: irreproducible_claims.map((e, i) => all_claims[i].length),
+    type: 'bar'
+
+  }
+
+  ];
+   var layout2 = {
+  title: 'Total number of major claims'
+ }
+
+
+  
+Plotly.newPlot('plot_irreproducibility', data, layout);
+Plotly.newPlot('plot_irreproducibility2', data2, layout2);
+<% end %>

@@ -22,7 +22,7 @@
       <% else %>
       <span class='text-success'>Validated</span>
       <button id='unvalidated-btn' class='btn btn-sm btn-outline-danger' type='button'>
-       <i class='fa fa-times'></i>
+	<i class='fa fa-times'></i>
       </button>
 
       <% end %>
@@ -32,9 +32,12 @@
     </h4> 
     <div class=''>
       <h4><%= raw @article.title %></b></h4>
-      <%= authors = @article.authors.split(";").select{|e| !e.strip.empty?}; raw authors.map{|a| "<span class='badge badge-light'>#{a}</span>"}.join(" ") %> 
+      <%= authors = @article.authors_txt.split(";").select{|e| !e.strip.empty?}; raw authors.map{|a| "<span class='badge badge-light author-badge pointer'>#{a}</span>"}.join(" ") %> 
       <br/>
       <span class='font-italic'><%= raw (j = @article.journal) ? j.name : 'NA' %></span>. <span><%= @article.year %></span>.
+
+      <div id='authors_container'></div>
+      
     </div>
   </div>
 </div>
@@ -341,6 +344,24 @@ $("#side_panel_content").on("click", ".del_rel", function(e){
  refresh_post(null, "<%= raw assertions_path() %>/" + subject_id + "/?article_key=<%= @article.key %>", p, 'put', {})
 })
 
+$(".author-badge").click(function(e){
+/*let data = [
+{name : 'author', value : $(this).val()}
+]
+*/
+ $("#ontop_popup_container").empty()
+ $("#ontop_popup_window").removeClass("hidden")
+ refresh("ontop_popup_container", "<%= raw get_author_form_article_path(:key => @article.key) %>?author=" + $(this).html(), {loading : 'fa-2x'})
+ var w = $(window).width();
+ $("#ontop_popup_window").css({
+        left: 200,
+        width:w - 250,
+        height:'auto',
+        top: e.pageY + 10
+ }).stop().show(100);
+
+})
+
 /*$(".assertion_type_container").on("click", ".show-assessment-btn", function(e){
  var assessment_id = this.id.split("_")[1]
  var a = "#assessment_" + assessment_id  
@@ -375,5 +396,7 @@ $(".assertion_type_container").on("mouseout", ".assert_action", function(e){
 $(this).css({color:""})
 })
 */
+
+refresh("authors_container", "<%= raw authors_path(:article => @article.id) %>", {loading : 'fa-2x'})
 
 <% end %>
