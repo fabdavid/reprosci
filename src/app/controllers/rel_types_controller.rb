@@ -27,7 +27,7 @@ class RelTypesController < ApplicationController
     @rel_type = RelType.new(rel_type_params)
 
     respond_to do |format|
-      if @rel_type.save
+      if admin? and @rel_type.save
         format.html { redirect_to @rel_type, notice: 'Rel type was successfully created.' }
         format.json { render :show, status: :created, location: @rel_type }
       else
@@ -41,7 +41,7 @@ class RelTypesController < ApplicationController
   # PATCH/PUT /rel_types/1.json
   def update
     respond_to do |format|
-      if @rel_type.update(rel_type_params)
+      if admin? and @rel_type.update(rel_type_params)
         format.html { redirect_to @rel_type, notice: 'Rel type was successfully updated.' }
         format.json { render :show, status: :ok, location: @rel_type }
       else
@@ -54,7 +54,7 @@ class RelTypesController < ApplicationController
   # DELETE /rel_types/1
   # DELETE /rel_types/1.json
   def destroy
-    @rel_type.destroy
+    @rel_type.destroy if admin?
     respond_to do |format|
       format.html { redirect_to rel_types_url, notice: 'Rel type was successfully destroyed.' }
       format.json { head :no_content }

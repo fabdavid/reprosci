@@ -20,6 +20,7 @@ class Article < ApplicationRecord
     integer :nber_claims do
       assertions.select{|a| a.obsolete == false and [1, 2, 3].include?(a.assertion_type_id)}.size
     end
+    integer :journal_id
     text :journal_name do
       journal.name
     end
@@ -27,5 +28,6 @@ class Article < ApplicationRecord
       assertions.select{|a| a.obsolete == false and [1, 2, 3].include?(a.assertion_type_id)}.map{|a| a.content}
     end
     time :updated_at
+    time :validated_at
   end
 end

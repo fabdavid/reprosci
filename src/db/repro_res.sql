@@ -228,6 +228,7 @@ additional_context text,
 references_txt text,
 assertion_updated_at timestamp,
 obsolete bool default false,
+large_scale bool default false,
 validated_by int references users,
 validated_at timestamp,		     
 primary key (id)
@@ -376,10 +377,19 @@ updated_at timestamp,
 primary key (id)
 );
 
-create table challenge_claim_reason(
+create table reason_types(
+id serial,
+name text,
+created_at timestamp,
+updated_at timestamp,
+primary key (id)
+);
+
+create table reasons(
 id serial,
 assertion_id int references assertions,
-reason text,
+reason_type_ids text, -- int references reason_types,
+rel_id int references rels,
 user_id int references users,
 created_at timestamp,
 updated_at timestamp,

@@ -383,11 +383,13 @@ class AssertionsController < ApplicationController
   # DELETE /assertions/1
   # DELETE /assertions/1.json
   def destroy
-    Rel.where(:subject_id => @assertion.id).all.destroy_all
-    @assertion.assertion_versions.destroy_all
-    # Rel.where(:complement_id => @assertion.id).all.destroy_all
-    @assertion.destroy
-    Basic.upd_workspace_stats @workspace
+    if  annotable? @workspace
+      Rel.where(:subject_id => @assertion.id).all.destroy_all
+      @assertion.assertion_versions.destroy_all
+      # Rel.where(:complement_id => @assertion.id).all.destroy_all
+      @assertion.destroy
+      Basic.upd_workspace_stats @workspace
+    end
     respond_to do |format|
       format.html { redirect_to assertions_url, notice: 'Assertion was successfully destroyed.' }
       format.json { head :no_content }

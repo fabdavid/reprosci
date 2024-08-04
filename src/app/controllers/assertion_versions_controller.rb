@@ -27,7 +27,7 @@ class AssertionVersionsController < ApplicationController
     @assertion_version = AssertionVersion.new(assertion_version_params)
 
     respond_to do |format|
-      if @assertion_version.save
+      if admin? and @assertion_version.save
         format.html { redirect_to @assertion_version, notice: 'Assertion version was successfully created.' }
         format.json { render :show, status: :created, location: @assertion_version }
       else
@@ -41,7 +41,7 @@ class AssertionVersionsController < ApplicationController
   # PATCH/PUT /assertion_versions/1.json
   def update
     respond_to do |format|
-      if @assertion_version.update(assertion_version_params)
+      if admin? and @assertion_version.update(assertion_version_params)
         format.html { redirect_to @assertion_version, notice: 'Assertion version was successfully updated.' }
         format.json { render :show, status: :ok, location: @assertion_version }
       else
@@ -54,7 +54,7 @@ class AssertionVersionsController < ApplicationController
   # DELETE /assertion_versions/1
   # DELETE /assertion_versions/1.json
   def destroy
-    @assertion_version.destroy
+    @assertion_version.destroy if admin?
     respond_to do |format|
       format.html { redirect_to assertion_versions_url, notice: 'Assertion version was successfully destroyed.' }
       format.json { head :no_content }

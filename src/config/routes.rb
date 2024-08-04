@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :reasons
+  resources :reason_types
   resources :expertise_levels
   resources :career_stages
   resources :authors do

@@ -59,6 +59,18 @@
     }
     }*/
 
+// Display a message temporarily for 1 second in a div
+function display_message(message, div_id) {
+    let div = $("#" + div_id)
+    // Display the message
+    div.html(message);
+
+    // Clear the message after 1 second
+    setTimeout(function() {
+        div.html(""); // Clear the message
+    }, 1000); // 1000 milliseconds = 1 second
+}
+
 function display_tag(match, pos, index, all_tags){
     console.log([match, pos, index].join(" -- "))
     var tag = all_tags[index]

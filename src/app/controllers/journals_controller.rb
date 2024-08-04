@@ -27,7 +27,7 @@ class JournalsController < ApplicationController
     @journal = Journal.new(journal_params)
 
     respond_to do |format|
-      if @journal.save
+      if admin? and @journal.save
         format.html { redirect_to @journal, notice: 'Journal was successfully created.' }
         format.json { render :show, status: :created, location: @journal }
       else
@@ -41,7 +41,7 @@ class JournalsController < ApplicationController
   # PATCH/PUT /journals/1.json
   def update
     respond_to do |format|
-      if @journal.update(journal_params)
+      if admin? and @journal.update(journal_params)
         format.html { redirect_to @journal, notice: 'Journal was successfully updated.' }
         format.json { render :show, status: :ok, location: @journal }
       else
@@ -54,7 +54,7 @@ class JournalsController < ApplicationController
   # DELETE /journals/1
   # DELETE /journals/1.json
   def destroy
-    @journal.destroy
+    @journal.destroy if admin?
     respond_to do |format|
       format.html { redirect_to journals_url, notice: 'Journal was successfully destroyed.' }
       format.json { head :no_content }

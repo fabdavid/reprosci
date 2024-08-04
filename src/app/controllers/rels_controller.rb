@@ -89,6 +89,23 @@ class RelsController < ApplicationController
 
             Basic.upd_workspace_stats @workspace
 
+            ## init reason
+            if ['3', '10', '11'].include? params[:assessment_type_id]
+
+              #              h_reason_types = {}
+              #              ReasonType.all.map{|rt| h_reason_types[rt.id] = }
+              
+              h_reason = {
+                :reason_type_id => nil, #params[:reason_type_id],
+                :assertion_id => @subject.id,
+                :rel_id => @rel.id,
+                :user_id => current_user.id
+              }
+              reason = Reason.new(h_reason)
+              reason.save
+              
+            end
+            
             #save file if there is one          
             if params[:file]
               attachment_dir = Pathname.new(APP_CONFIG[:data_dir]) + 'attachments' + @workspace.key

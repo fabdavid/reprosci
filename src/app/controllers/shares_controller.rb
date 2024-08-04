@@ -118,7 +118,7 @@ class SharesController < ApplicationController
   # PATCH/PUT /shares/1.json
   def update
     respond_to do |format|
-      if @share.update(share_params)
+      if shareable? @workspace and @share.update(share_params)
         format.html { redirect_to @share, notice: 'Share was successfully updated.' }
         format.json { render :show, status: :ok, location: @share }
       else
@@ -131,7 +131,7 @@ class SharesController < ApplicationController
   # DELETE /shares/1
   # DELETE /shares/1.json
   def destroy
-    @share.destroy
+    @share.destroy if shareable? @workspace
     respond_to do |format|
       format.html { redirect_to shares_url, notice: 'Share was successfully destroyed.' }
       format.json { head :no_content }

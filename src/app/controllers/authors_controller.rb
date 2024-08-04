@@ -54,8 +54,10 @@ class AuthorsController < ApplicationController
   def create
     @author = Author.new(author_params)
 
+    @existing_author = Author.where(:name => @author.name, :article_id => @author.article_id).first
+    
     respond_to do |format|
-      if @author.save
+      if read_admin? and !@existing_author and @author.save
         format.html{ render :partial => 'upd_list'}
 #        format.html { redirect_to author_url(@author), notice: "Author was successfully created." }
 #        format.json { render :show, status: :created, location: @author }
@@ -69,7 +71,7 @@ class AuthorsController < ApplicationController
   # PATCH/PUT /authors/1 or /authors/1.json
   def update
     respond_to do |format|
-      if @author.update(author_params)
+      if read_admin? and @author.update(author_params)
         format.html{ render :partial => 'upd_list'}
  #       format.html { redirect_to author_url(@author), notice: "Author was successfully updated." }
  #       format.json { render :show, status: :ok, location: @author }
@@ -82,7 +84,7 @@ class AuthorsController < ApplicationController
 
   # DELETE /authors/1 or /authors/1.json
   def destroy
-    @author.destroy
+    @author.destroy if admin?
 
     respond_to do |format|
       format.html { redirect_to authors_url, notice: "Author was successfully destroyed." }

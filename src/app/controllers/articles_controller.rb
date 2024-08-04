@@ -55,6 +55,8 @@ class ArticlesController < ApplicationController
     session[:article_settings][:search_view_type] ||= 'card'
     session[:article_settings][:free_text] = params[:free_text] if params[:free_text]
     @workspace = Workspace.where(:key => params[:workspace_key]).first
+    journal_ids = @workspace.articles.map{|a| a.journal_id}.uniq
+    @journals = Journal.where(:id => journal_ids).all
     if params[:nolayout] == "1"
       render :layout => nil
     else
@@ -86,9 +88,6 @@ class ArticlesController < ApplicationController
     
     @articles = []
     
-    @h_journals = {}
-    Journal.all.map{|j| @h_journals[j.id] = j}
-    
     @h_counts = {
       :all => Article.count
     }
@@ -97,12 +96,19 @@ class ArticlesController < ApplicationController
       fulltext words.join(" ").gsub(/\$\{jndi\:/, '').gsub(/[\{\}\$\:\\]/, '')
       #   with :public, true
       with :workspace_id, @workspace.id if @workspace
+      with :validated_at, nil if params[:only_not_validated]
+      with :journal_id, params[:journal_id] if params[:journal_id]
       order_by(:nber_claims, :desc)
       order_by(:updated_at, :desc)
       paginate :page => session[:article_settings][:page], :per_page => session[:article_settings][:per_page]
     end
     
     @articles= @query.results
+
+    @h_journals = {}
+    @journals = Journal.all
+    @journals.map{|j| @h_journals[j.id] = j}
+
     
     @h_nber = {:claim => {}, :method => {}, :evidence => {}, :assessment => {}, :comment => {}}
     @h_nber.each_key do |k|
@@ -229,13 +235,13 @@ class ArticlesController < ApplicationController
   # PATCH/PUT /articles/1.json
   def update
     respond_to do |format|
-      if annotable? @workspace and @article.update(article_params)
+      if (admin? or annotable? @workspace) and @article.update(article_params)
        
         format.html { 
           if params[:partial] == 'attr'
             render :partial => 'show_attribute', :locals => {:article_attr => @article.attributes, :attr => params[:attr_name]}
           else
-              redirect_to @article, notice: 'Article was successfully updated.'
+              redirect_to article_path(:key => @article.key), notice: 'Article was successfully updated.'
           end
         }
         format.json { render :show, status: :ok, location: @article }
@@ -249,7 +255,7 @@ class ArticlesController < ApplicationController
   # DELETE /articles/1
   # DELETE /articles/1.json
   def destroy
-    if annotable? @workspace 
+    if admin? or annotable? @workspace 
       @article.update_attribute(:obsolete => true)
       #   if @article.assertions.size > 0
       #     @article.assertions.each do |a|
@@ -331,6 +337,6 @@ class ArticlesController < ApplicationController
   
   # Never trust parameters from the scary internet, only allow the white list through.
   def article_params
-    params.fetch(:article).permit(:pmid, :additional_context, :references_txt)
+    params.fetch(:article).permit(:pmid, :additional_context, :references_txt, :large_scale)
   end
 end

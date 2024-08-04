@@ -24,7 +24,7 @@ class ExpertiseLevelsController < ApplicationController
     @expertise_level = ExpertiseLevel.new(expertise_level_params)
 
     respond_to do |format|
-      if @expertise_level.save
+      if admin? and @expertise_level.save
         format.html { redirect_to expertise_level_url(@expertise_level), notice: "Expertise level was successfully created." }
         format.json { render :show, status: :created, location: @expertise_level }
       else
@@ -37,7 +37,7 @@ class ExpertiseLevelsController < ApplicationController
   # PATCH/PUT /expertise_levels/1 or /expertise_levels/1.json
   def update
     respond_to do |format|
-      if @expertise_level.update(expertise_level_params)
+      if admin? and @expertise_level.update(expertise_level_params)
         format.html { redirect_to expertise_level_url(@expertise_level), notice: "Expertise level was successfully updated." }
         format.json { render :show, status: :ok, location: @expertise_level }
       else
@@ -49,7 +49,7 @@ class ExpertiseLevelsController < ApplicationController
 
   # DELETE /expertise_levels/1 or /expertise_levels/1.json
   def destroy
-    @expertise_level.destroy
+    @expertise_level.destroy if admin?
 
     respond_to do |format|
       format.html { redirect_to expertise_levels_url, notice: "Expertise level was successfully destroyed." }

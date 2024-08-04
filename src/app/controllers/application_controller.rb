@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
   end
 
   def read_admin?
-    current_user and ['bbcf.epfl@gmail.com', 'hannah.westlake@epfl.ch', 'desiree.popelka@epfl.ch', 'blandine.ribotta@epfl.ch'].include?(current_user.email)
+    current_user and ['bbcf.epfl@gmail.com', 'hannah.westlake@epfl.ch', 'desiree.popelka@epfl.ch', 'blandine.ribotta@epfl.ch', 'bruno.lemaitre@epfl.ch'].include?(current_user.email)
   end
 
   def banned_user? s, u, w

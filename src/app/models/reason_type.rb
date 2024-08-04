@@ -1,0 +1,2 @@
+class ReasonType < ApplicationRecord
+end

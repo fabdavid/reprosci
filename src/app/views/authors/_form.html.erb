@@ -63,6 +63,7 @@ refresh_post(null, "<%= raw author_path(author.id) %>", data, 'put', {loading : 
 <% else %>
 refresh_post(null, "<%= raw authors_path() %>", data, 'post', {loading : 'fa-2x'})
 <% end %>
+$("#submit-btn").prop("disabled", "disabled")
 })
 
 <% end %>

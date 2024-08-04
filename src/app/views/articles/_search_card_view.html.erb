@@ -7,7 +7,10 @@
        <% if annotable?(@workspace) %>
 <!--       <button type='button' id='del_article_<%= a.key %>' class=' btn btn-xs btn-outline-danger del_article'><i class='fa fa-times-circle'></i></button>-->
 <%# link_to raw("<i class='fa fa-times-circle'></i>"), a, method: :delete, data: { confirm: 'Are you sure?' } %>
-       <% end %>
+<% if a.validated_at and read_admin? %>
+<span class='text-success'><i class='fa fa-circle'></i></span> 
+<% end %>
+<% end %>
      </div>
      <%= link_to raw(display_ref(a)), article_path(:key => a.key) %><br/>	
      <small>

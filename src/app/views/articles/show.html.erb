@@ -5,15 +5,17 @@
   <div class='card-body'>
     <div class='float-right'>
       <% if annotable?(@workspace) %>
-      <%= link_to "Delete", article_path(:key => @article.key), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger" %>      
+      <%= link_to "Delete", article_path(:key => @article.key), method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger" %>
+      <a class='btn btn-success' href='<%= raw edit_article_path(:key => @article.key) %>'>Edit</a>
       <% end %>
-      <button class='back-workspace btn btn-success' type='button'>Back to workspace</button>
+      <button class='back-workspace btn btn-secondary' type='button'>Back to workspace</button>
     </div>
     <h4 class='card-title'>
       <b>Reference</b>
       <small><sup><%= link_to(raw("<i class='fas fa-external-link-alt'></i>"), "https://www.ncbi.nlm.nih.gov/pubmed/#{@article.pmid}") %></sup> 
       <% if annotable? @workspace %>
       [<%= @article.num %>]
+      <%= raw (@article.large_scale) ? "<span class='badge badge-warning'>Large scale study</span>" : '' %>
       <div id='validation_container'>
       <% if !@article.validated_at %>
       <button id='validated-btn' class='btn btn-outline-danger' type='button'>
@@ -30,13 +32,16 @@
       </div>
       </small>
     </h4> 
-    <div class=''>
+    <div class='mr-3 ml-3 mb-3 mt-3'>
       <h4><%= raw @article.title %></b></h4>
       <%= authors = @article.authors_txt.split(";").select{|e| !e.strip.empty?}; raw authors.map{|a| "<span class='badge badge-light author-badge pointer'>#{a}</span>"}.join(" ") %> 
       <br/>
       <span class='font-italic'><%= raw (j = @article.journal) ? j.name : 'NA' %></span>. <span><%= @article.year %></span>.
 
+      <% if read_admin? %>
       <div id='authors_container'></div>
+      <% end  %>
+      <div><%= check_box_tag 'large_scale_study' %> Large scale study</div>
       
     </div>
   </div>
@@ -106,6 +111,7 @@
 -->
 
 <%= javascript_tag do %>
+
 
 var h_rel_types = <%= raw @h_rel_types.to_json %>
 
@@ -344,6 +350,8 @@ $("#side_panel_content").on("click", ".del_rel", function(e){
  refresh_post(null, "<%= raw assertions_path() %>/" + subject_id + "/?article_key=<%= @article.key %>", p, 'put', {})
 })
 
+<% if read_admin? %> 
+
 $(".author-badge").click(function(e){
 /*let data = [
 {name : 'author', value : $(this).val()}
@@ -361,6 +369,8 @@ $(".author-badge").click(function(e){
  }).stop().show(100);
 
 })
+
+<% end %>
 
 /*$(".assertion_type_container").on("click", ".show-assessment-btn", function(e){
  var assessment_id = this.id.split("_")[1]
@@ -397,6 +407,9 @@ $(this).css({color:""})
 })
 */
 
-refresh("authors_container", "<%= raw authors_path(:article => @article.id) %>", {loading : 'fa-2x'})
+<% if read_admin? %>
+refresh("authors_container", "<%= raw authors_path(:article_id => @article.id) %>", {loading : 'fa-2x'})
+<% end %>
+
 
 <% end %>

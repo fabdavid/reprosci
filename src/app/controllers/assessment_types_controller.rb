@@ -27,7 +27,7 @@ class AssessmentTypesController < ApplicationController
     @assessment_type = AssessmentType.new(assessment_type_params)
 
     respond_to do |format|
-      if @assessment_type.save
+      if admin? and @assessment_type.save
         format.html { redirect_to @assessment_type, notice: 'Assessment type was successfully created.' }
         format.json { render :show, status: :created, location: @assessment_type }
       else
@@ -41,7 +41,7 @@ class AssessmentTypesController < ApplicationController
   # PATCH/PUT /assessment_types/1.json
   def update
     respond_to do |format|
-      if @assessment_type.update(assessment_type_params)
+      if admin? and @assessment_type.update(assessment_type_params)
         format.html { redirect_to @assessment_type, notice: 'Assessment type was successfully updated.' }
         format.json { render :show, status: :ok, location: @assessment_type }
       else
@@ -54,7 +54,7 @@ class AssessmentTypesController < ApplicationController
   # DELETE /assessment_types/1
   # DELETE /assessment_types/1.json
   def destroy
-    @assessment_type.destroy
+    @assessment_type.destroy if admin?
     respond_to do |format|
       format.html { redirect_to assessment_types_url, notice: 'Assessment type was successfully destroyed.' }
       format.json { head :no_content }

@@ -27,7 +27,7 @@ class OrcidUsersController < ApplicationController
     @orcid_user = OrcidUser.new(orcid_user_params)
 
     respond_to do |format|
-      if @orcid_user.save
+      if admin? and @orcid_user.save
         format.html { redirect_to @orcid_user, notice: 'Orcid user was successfully created.' }
         format.json { render :show, status: :created, location: @orcid_user }
       else
@@ -41,7 +41,7 @@ class OrcidUsersController < ApplicationController
   # PATCH/PUT /orcid_users/1.json
   def update
     respond_to do |format|
-      if @orcid_user.update(orcid_user_params)
+      if admin? and @orcid_user.update(orcid_user_params)
         format.html { redirect_to @orcid_user, notice: 'Orcid user was successfully updated.' }
         format.json { render :show, status: :ok, location: @orcid_user }
       else
@@ -54,7 +54,7 @@ class OrcidUsersController < ApplicationController
   # DELETE /orcid_users/1
   # DELETE /orcid_users/1.json
   def destroy
-    @orcid_user.destroy
+    @orcid_user.destroy if admin?
     respond_to do |format|
       format.html { redirect_to orcid_users_url, notice: 'Orcid user was successfully destroyed.' }
       format.json { head :no_content }

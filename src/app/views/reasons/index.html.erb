@@ -1,0 +1,69 @@
+<p id="notice"><%= notice %></p>
+
+<% reason_types = ReasonType.all %>
+
+<h1>Reasons</h1>
+
+<table id='reasons'>
+  <thead>
+    <tr>
+      <th>Article</th>
+      <th>Challenged claim</th>
+      <th>Assessment type</th>
+      <th>Assessment & Reason</th>
+     <!-- <th></th>
+      <th></th>
+      <th></th>-->
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @reasons.each do |reason| %>
+    <% subject = reason.assertion %>
+    <% rel = reason.rel %>
+    <% complement = Assertion.where(:id => rel.complement_id).first %>
+    <% article = subject.article %>
+    <tr>
+      <td><%= raw display_ref(article) %></td>
+      <td><%= raw display_assertion(complement, complement.assertion_type) %></td>
+      <td><%= subject.assessment_type.name %></td>
+      <td><%= raw display_assertion(subject, subject.assertion_type) %><br/>
+	<%# l = ReasonType.all.map{|e| [e.name, e.id]} %>
+	<%# l.unshift ['Not defined', ''] %>
+	<%# select_tag "reason_type_#{reason.id}", options_for_select(l, reason.reason_type_id), :style =>"", :class => 'reason_type' %>
+	<% reason_types.each do |rt| %>
+	<span class='badge badge-info'>
+	  <%= check_box_tag "reason_types[#{reason.id}][#{rt.id}]", rt.id, (reason.reason_type_ids and reason.reason_type_ids.split(",").include? rt.id.to_s), :class => 'reason_type' %> <%= rt.name %>
+	</span>
+	<% end %>
+	<div id='upd_reason_container_<%= reason.id %>'></div>
+      </td>
+  <!--    <td><%# link_to 'Show', reason %></td>
+      <td><%# link_to 'Edit', edit_reason_path(reason) %></td>
+      <td><%# link_to 'Destroy', reason, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  -->  </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= javascript_tag do %>
+
+$("#reasons").DataTable({pageLength:<%= @reasons.size %>})
+
+$(".reason_type").click(function(){
+ var reason_id = this.id.split("_")[2]
+ var reason_type_ids = [];
+
+  // Collect all checked reason_type checkboxes for the specific reason
+  $("input[type='checkbox'][id^='reason_types_" + reason_id + "']:checked").each(function() {
+    reason_type_ids.push($(this).val());
+  });
+var data = [
+{name : 'reason[reason_type_ids]', value : reason_type_ids.join(",")}
+]
+refresh_post(null, "<%= raw reasons_path() %>/" + reason_id, data, 'put', {})
+})
+
+<% end %>

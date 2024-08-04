@@ -1,4 +1,4 @@
 $("#ontop_popup_container").empty()
 $("#ontop_popup_window").addClass("hidden")
 $("#ontop_popup_window").hide()
-refresh("authors_container", "<%= raw authors_path(:article_id => params[:article_id]) %>", {loading : 'fa-2x'}) 
+refresh("authors_container", "<%= raw authors_path(:article_id => params[:author][:article_id]) %>", {loading : 'fa-2x'}) 

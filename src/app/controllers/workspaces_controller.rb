@@ -84,16 +84,47 @@ class WorkspacesController < ApplicationController
         "Mixed" => ["Mixed"],
         "Others" => ["Reproduction in progress"]
       }
+
+      @h_groups2 = {
+        "Verified" => ["Verified", "Verified by same authors", "Verified by reproducibility project"],
+        "Unchallenged" => ["Unchallenged, logically consistent", "Unchallenged, logically inconsistent", "Unchallenged"],
+        "Challenged" => ["Challenged", "Challenged by same authors", "Challenged by reproducibility project"],
+        "Partially verified" => ["Partially verified"],
+        "Mixed" => ["Mixed"],
+        "In progress" => ["Reproduction in progress"]
+      }
+
+      @h_color_groups2 = {
+        "Verified" => "darkblue",
+        "Unchallenged" => "lightgreen",
+        "Challenged" => "red",
+        "Partially verified" => "lightblue",
+        "Mixed" => "grey",
+        "In progress" => "darkgreen"
+      }
+
       
       @h_rev_groups = {}
       @h_groups.keys.map{|k| @h_groups[k].map{|k2| @h_rev_groups[k2]=k}}
-      @h_stats_by_group = {}
+      @h_rev_groups2 = {}
+      @h_groups2.keys.map{|k| @h_groups2[k].map{|k2| @h_rev_groups2[k2]=k}}
 
+      @h_journal_types = {} #{:high => 0, :medium => 0, :low => 0}
+      @journal_types = [:low, :medium, :high]
+      
+      @h_stats_by_group = {}
+      
       @challenged_ids = [3, 10, 11]
-      @journals = Journal.all
-      @h_journals = {}
-      @journals.map{|j| @h_journals[j.id] = j}
+      
       @articles = @workspace.articles
+
+      @journals = Journal.where(:id => @articles.map{|a| a.journal_id}).all
+      @h_journals = {}
+      
+      @journals.map{|j| @h_journals[j.id] = j; @h_journal_types[j.id] = (j.impact_factor and j.impact_factor > 50) ? :high : ((j.impact_factor and j.impact_factor > 10) ? :medium : :low) }
+      
+    
+      
       @h_articles = {}
       @articles.map{|a| @h_articles[a.id] = a}
       @assertion_types =  AssertionType.all
@@ -166,14 +197,23 @@ class WorkspacesController < ApplicationController
       @irreproducible_claims = []
       @all_claims = []
       @irreproducible_claims_by_journal = {}
-
+      @irreproducible_claims_by_journal_type = {}
+      
       @all_claims_by_journal = {}
+      @all_claims_by_journal_type = {}
       
       all_challenged = Assertion.where(:assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @challenged_ids).all
       @all_challenged_journal_ids = all_challenged.map{|e| @h_articles[e.article_id].journal_id}.uniq #if all_challenged
-      @all_challenged_journal_ids.each do |j_id|
-        @all_claims_by_journal[j_id]=[]
-        @irreproducible_claims_by_journal[j_id]=[]
+   #   @all_challenged_journal_ids.each do |j_id|
+      @journals.each do |j|
+        @all_claims_by_journal[j.id]=[]
+        @irreproducible_claims_by_journal[j.id]=[]
+        #        @irreproducible_claims_by_journal_type[h_journal_types[j.id]]=
+      end
+
+      @journal_types.each do |jt|
+        @irreproducible_claims_by_journal_type[jt]=[]
+        @all_claims_by_journal_type[jt]=[]
       end
       
      # @irreproducible_claims.each_key do |k|
@@ -193,14 +233,52 @@ class WorkspacesController < ApplicationController
         logger.debug("ASSERTION: " + assertions.size.to_s)
         @irreproducible_claims.push assertions
         @all_claims.push all_assertions
-        @all_challenged_journal_ids.each do |journal_id|
+        @journals.each do |journal|
+          journal_id = journal.id
           tmp_article_ids = articles.select{|a| a.journal_id == journal_id}.map{|a| a.id}
           @all_claims_by_journal[journal_id].push all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
-          @irreproducible_claims_by_journal[journal_id].push assertions.select{|e| tmp_article_ids.include?(e.article_id)}   
+          @irreproducible_claims_by_journal[journal_id].push assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+          
+          @all_claims_by_journal_type[@h_journal_types[journal_id]].concat all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+          @irreproducible_claims_by_journal_type[@h_journal_types[journal_id]].concat assertions.select{|e| tmp_article_ids.include?(e.article_id)}
         end
         
       end
+
+      ## by category
+      @categories_data = []
+      h_nber_by_category = {}
+      @assessement_type_by_claim_type.each_key do |k1| 
+        tmp_h = {} 
+        @assessement_type_by_claim_type[k1].each_key do |k2|
+          tmp_h[@h_rev_groups2[@h_assessment_types[k2].name]] ||= 0 
+          tmp_h[@h_rev_groups2[@h_assessment_types[k2].name]] += @assessement_type_by_claim_type[k1][k2].size
+        end
+        h_nber_by_category[k1] = tmp_h
+        #  total = tmp_h.values.sum
+      end
       
+# "Verified" => "darkblue",
+#        "Unchallenged" => "lightgreen",
+#        "Challenged" => "red",
+#        "Partially verified" => "lightblue",
+#        "Mixed" => "grey",
+#        "In progress" => "darkgreen"
+
+      list_categories = ["Verified", "Partially verified", "Mixed", "Challenged", "Unchallenged", "In progress"]
+      total = h_nber_by_category[2].values.sum
+      list_categories.each do |k|
+        h = {
+          :x => ['Major Claims'], 
+          :y => [h_nber_by_category[2][k].to_f*100/total], 
+          :name => k,
+          :type => 'bar',
+          :marker => { :color => @h_color_groups2[k] }
+        }
+        @categories_data.push h
+      end
+
+
       
       respond_to do |format|
         format.html {

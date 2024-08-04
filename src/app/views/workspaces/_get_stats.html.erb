@@ -97,6 +97,9 @@ Summary by group
 <div id='plot_irreproducibility'></div>
 <div id='plot_irreproducibility2'></div>
 
+<div id='plot_categories'></div>
+<div id='plot_journal_types'></div>
+
 
 Irreproducibility of major claims by journal
 
@@ -114,23 +117,24 @@ Irreproducibility of major claims by journal
     </tr>
   </thead>
   <tbody>
-    <% @journals.select{|j| @all_claims_by_journal[j.id] or @irreproducible_claims_by_journal[j.id]}.each do |j| %>
+    <%# @journals.select{|j| @all_claims_by_journal[j.id] or @irreproducible_claims_by_journal[j.id]}.each do |j| %>
+    <% @journals.select{|j| @all_claims_by_journal[j.id]}.each do |j| %>
     <tr>
-      <td><%= j.name %></td>
+      <td><%= j.name.html_safe %></td>
       <% total_irr = 0 %>
       <% total = 0 %>
       <% @time_intervals.each_index do |i| %>
-      <td><%= (@all_claims_by_journal[j.id] and @all_claims_by_journal[j.id][i].size > 0) ? ((@irreproducible_claims_by_journal[j.id]) ? (@irreproducible_claims_by_journal[j.id][i].size * 100.to_f / @all_claims_by_journal[j.id][i].size).round(1) : 0) : '' %>
+      <td><%= (@all_claims_by_journal[j.id] and @all_claims_by_journal[j.id][i] and @all_claims_by_journal[j.id][i].size > 0) ? ((@irreproducible_claims_by_journal[j.id]) ? (@irreproducible_claims_by_journal[j.id][i].size * 100.to_f / @all_claims_by_journal[j.id][i].size).round(1) : 0) : '' %>
 		 
-	<% total_irr+= @irreproducible_claims_by_journal[j.id][i].size %>
-	<% total+= @all_claims_by_journal[j.id][i].size %>
+	<% total_irr+= (@irreproducible_claims_by_journal[j.id][i]) ? @irreproducible_claims_by_journal[j.id][i].size : 0 %>
+	<% total+= (@all_claims_by_journal[j.id][i]) ? @all_claims_by_journal[j.id][i].size : 0 %>
 	<%# (@irreproducible_claims_by_journal[j.id]) ? @irreproducible_claims_by_journal[j.id][i].size : 0 %>
 	<%# (@all_claims_by_journal[j.id]) ? @all_claims_by_journal[j.id][i].size : 0 %></td>
-<td><%= (@all_claims_by_journal[j.id] and @all_claims_by_journal[j.id][i].size > 0) ?  ((@irreproducible_claims_by_journal[j.id]) ? @irreproducible_claims_by_journal[j.id][i].size : 0) : '' %></td>
+<td><%= (@all_claims_by_journal[j.id] and @all_claims_by_journal[j.id][i] and @all_claims_by_journal[j.id][i].size > 0) ?  ((@irreproducible_claims_by_journal[j.id]) ? @irreproducible_claims_by_journal[j.id][i].size : 0) : '' %></td>
       <% end %>
       <td><%= total_irr %></td>
       <td><%= total %></td>
-      <td><%= total_irr *100.to_f/total %></td>
+      <td><%= (total) ? total_irr *100.to_f/total : '' %></td>
     </tr>
     <% end %>
   </tbody>
@@ -170,7 +174,12 @@ var data = [
 ];
 
   var layout = {
-  title: 'Percentage of irreproducible claims'
+  title: {text: 'Percentage of irreproducible claims', font: {size: 24}},
+  xaxis: { title: {text: ''},  tickfont: {size: 18}},
+  yaxis: { title: {text: '', font: {size: 18}},  tickfont: {size: 18} },
+   width: 500
+
+
  }
 
 var data2 = [
@@ -185,11 +194,71 @@ var data2 = [
 
   ];
    var layout2 = {
-  title: 'Total number of major claims'
+  title: {text: 'Total number of major claims', font: {size: 24}},
+  xaxis: { title: {text: ''},  tickfont: {size: 18}},
+  yaxis: { title: {text: '', font: {size: 18}},  tickfont: {size: 18} },
+   width: 500
+
  }
 
 
   
 Plotly.newPlot('plot_irreproducibility', data, layout);
 Plotly.newPlot('plot_irreproducibility2', data2, layout2);
-<% end %>
+
+
+  var data3 = <%= raw @categories_data.to_json %>
+  var layout3 = {
+  barmode: 'stack',
+  
+            title: { text: 'Proportion of major claims in broad categories', font: {size: 24}},
+            xaxis: { title: {text: ''},  tickfont: {size: 18}},
+  yaxis: { title: {text: 'Proportion of major claims', font: {size: 18}},  tickfont: {size: 18} },
+   width: 500
+
+  }
+
+
+  Plotly.newPlot('plot_categories', data3, layout3)
+
+
+  // Data for the pie chart
+  var data4 = [{
+    y: <%= raw @journal_types.map{|jt| @irreproducible_claims_by_journal_type[jt].size.to_f*100/@all_claims_by_journal_type[jt].size}.to_json %>, //[10, 20, 30],
+    x: <%= raw @journal_types.to_json %>,
+    type: 'bar'
+  }];
+
+  // Layout configuration for the pie chart
+  var layout4 = {
+    title: {
+        text: 'Major claims by journal type',
+        font: {
+            size: 24
+   }},
+  xaxis: {
+     title: {
+        text: 'Categories',
+        font: {
+            size: 18
+            }
+  },
+  tickfont: { size: 18}
+  },
+  yaxis: {
+  title: {
+   text: 'Values',
+   font: {
+            size: 18
+            }
+  },
+  tickfont: {size: 18}
+  },
+  width: 500
+  };
+
+  // Render the pie chart
+  Plotly.newPlot('plot_journal_types', data4, layout4);
+
+  
+  <% end %>

@@ -24,7 +24,7 @@ class CareerStagesController < ApplicationController
     @career_stage = CareerStage.new(career_stage_params)
 
     respond_to do |format|
-      if @career_stage.save
+      if admin? and @career_stage.save
         format.html { redirect_to career_stage_url(@career_stage), notice: "Career stage was successfully created." }
         format.json { render :show, status: :created, location: @career_stage }
       else
@@ -37,7 +37,7 @@ class CareerStagesController < ApplicationController
   # PATCH/PUT /career_stages/1 or /career_stages/1.json
   def update
     respond_to do |format|
-      if @career_stage.update(career_stage_params)
+      if admin? and @career_stage.update(career_stage_params)
         format.html { redirect_to career_stage_url(@career_stage), notice: "Career stage was successfully updated." }
         format.json { render :show, status: :ok, location: @career_stage }
       else
@@ -49,7 +49,7 @@ class CareerStagesController < ApplicationController
 
   # DELETE /career_stages/1 or /career_stages/1.json
   def destroy
-    @career_stage.destroy
+    @career_stage.destroy if admin?
 
     respond_to do |format|
       format.html { redirect_to career_stages_url, notice: "Career stage was successfully destroyed." }
