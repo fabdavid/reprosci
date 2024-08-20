@@ -389,6 +389,7 @@ create table reasons(
 id serial,
 assertion_id int references assertions,
 reason_type_ids text, -- int references reason_types,
+comment text,
 rel_id int references rels,
 user_id int references users,
 created_at timestamp,

@@ -9,6 +9,7 @@
     <tr>
       <th>Article</th>
       <th>Challenged claim</th>
+      <th>Claim type</th>
       <th>Assessment type</th>
       <th>Assessment & Reason</th>
      <!-- <th></th>
@@ -26,6 +27,7 @@
     <tr>
       <td><%= raw display_ref(article) %></td>
       <td><%= raw display_assertion(complement, complement.assertion_type) %></td>
+      <td><%= raw complement.assertion_type.label %></td>
       <td><%= subject.assessment_type.name %></td>
       <td><%= raw display_assertion(subject, subject.assertion_type) %><br/>
 	<%# l = ReasonType.all.map{|e| [e.name, e.id]} %>
@@ -36,6 +38,7 @@
 	  <%= check_box_tag "reason_types[#{reason.id}][#{rt.id}]", rt.id, (reason.reason_type_ids and reason.reason_type_ids.split(",").include? rt.id.to_s), :class => 'reason_type' %> <%= rt.name %>
 	</span>
 	<% end %>
+	<%= text_field_tag "reason_types[#{reason.id}]['comment']", rt.comment, :class => 'form-control' %> <div class='upd_reason_btn' class='btn btn-success reason_type'>Update</div>
 	<div id='upd_reason_container_<%= reason.id %>'></div>
       </td>
   <!--    <td><%# link_to 'Show', reason %></td>
