@@ -171,6 +171,21 @@ class ArticlesController < ApplicationController
     session[:article_settings][:free_text] = ''
     session[:article_settings][:page]=1
 
+     respond_to do |format|
+       format.html {}
+       format.text {
+         if read_admin?
+           @workspace = Workspace.where(:key => params[:workspace_key]).first if params[:workspace_key]
+           @articles = (@workspace) ? @workspace.articles : Article.all
+           assertions = Assertion.where(:article_id => @articles.map{|a| a.id}).all
+           h_article_ids = {}
+           assertions.map{|a| h_article_ids[a.article_id] = 1}
+           #         @articles.select!{|a| h_article_ids[a.id]}
+           render :plain => ["Article ID", "Authors", "Title", "Year", "PMID"].join("\t") + "\n" + @articles.select{|a| !params[:only_annotated] or h_article_ids[a.id]}.map{|a| [a.id, a.authors_txt, a.title, a.year, a.pmid].join("\t")}.join("\n") + "\n"
+         end
+       }
+     end
+     
   end
 
   # GET /articles/1

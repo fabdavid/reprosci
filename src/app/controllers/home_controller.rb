@@ -88,6 +88,20 @@ class HomeController < ApplicationController
 
   end
 
+  def download
+    
+    h_files = {
+      'author_stats' =>  Pathname.new(APP_CONFIG[:data_dir]) + 'stats_author.xlsx', 
+      'citation_counts' =>  Pathname.new(APP_CONFIG[:data_dir]) + 'citation_counts.txt'
+    }
+    
+    if read_admin?
+      send_file h_files[params[:f]], type: 'application/octet-stream',                                                                                    
+          x_sendfile: true, buffer_size: 512, disposition: "attachment; filename=" + h_files[params[:f]].basename.to_s
+    end
+    
+  end
+  
   def welcome
   end
 

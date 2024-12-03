@@ -1,6 +1,8 @@
 development:
  data_dir:
   /mnt/reprosci/
+ share_data_dir:
+  /mnt/reprosci_share/
  data_server:
   ENV["DATA_URL"] #https://reprosci.epfl.ch/data/  
  server_url:
@@ -9,6 +11,8 @@ development:
 production:
  data_dir:
   /mnt/reprosci/
+ share_data_dir:
+  /mnt/reprosci_share/
  data_server:
   https://reprosci.epfl.ch/data/
  server_url:

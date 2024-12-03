@@ -24,6 +24,17 @@ module ApplicationHelper
      }
     return html
   end
+
+  def display_assertion_txt assertion, assertion_type
+
+    index = -1
+    html = assertion.content.gsub(/\#link[^\s]*|\#doi[^\s]*|\#[\d\w\-_:\/\|]+/){|s|
+     index+=1
+     display_tag_txt(s, Regexp.last_match.begin(0), index, Basic.safe_parse_json(assertion.all_tags_json, []), assertion_type)
+     }
+    return html
+  end
+
   
   def display_tag match, pos, index, all_tags, assertion_type
     tag = all_tags[index]
@@ -50,6 +61,33 @@ module ApplicationHelper
     return html
   end  
 
+    def display_tag_txt match, pos, index, all_tags, assertion_type
+    tag = all_tags[index]
+    text = ''
+    if tag and match[-1] != '!' #and tag['label'][-1] != '!'                                                                                                                                                 
+      if tag['type'] == 'gene'
+        #html = "<span class='badge badge-tag #{assertion_type.badge_tag_classes} gene_tag gene-id_" + ((tag['id']) ? tag['id'] : '') + "'>" + (tag['label'] || 'NO_LABEL') + "</span>"
+        text = tag['label'] || 'NO_LABEL'
+      elsif tag['type'] == 'tag'
+        #html = "<span class='badge badge-tag #{assertion_type.badge_tag_classes} tag_tag'>" + tag['val'].gsub(/_/, " ") + "</span>"
+        text = tag['val'].gsub(/_/, " ")
+      elsif tag['type'] == 'link'
+        # html = "<a href = '" + (tag['url'] || '') + "' title='" + (tag['url'] || '') + "' class='badge #{assertion_type.badge_tag_classes} #{assertion_type.badge_tag_classes}-link'>" + (tag['text'] || 'NA') + "</span></a>"
+        text = tag['text'] || 'NA'
+      #  html = "<a href = '" + (t[1] || '') + "'><span class='badge badge-tag #{assertion_type.badge_tag_classes} tag_tag'>" + (t[0] || 'NA') + "</span></a>"
+      elsif tag['type'] == 'pmid'
+      #html = "<a href = 'https://pubmed.ncbi.nlm.nih.gov/" + (tag['val'] || '') + "' title='https://pubmed.ncbi.nlm.nih.gov/" + (tag['val'] || '') + "' class='badge #{assertion_type.badge_tag_classes}  #{assertion_type.badge_tag_classes}-link'>[Pubmed]</a>"
+        text = tag['val'] || ''
+      elsif tag['type'] == 'doi'
+        url = "https://doi.org/" + (tag['val'] || '')
+    #    html = "<a href = '" + url + "' class='badge #{assertion_type.badge_tag_classes}  #{assertion_type.badge_tag_classes}-link'>[DOI link]</a>"
+        text = tag['val'] || ''
+      end
+    end
+    return text
+  end
+
+  
   def display_ref a  
     authors =  a.authors_txt.split(";")
     html = authors.first + ((authors.size > 1) ? '<i> et al.</i>' : '') + ", " + a.year.to_s

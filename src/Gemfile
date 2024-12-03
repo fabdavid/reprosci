@@ -37,8 +37,11 @@ gem 'activerecord-session_store'
 gem 'sunspot_rails'
 gem 'sunspot_solr'
 gem 'progress_bar'
-
+gem 'selenium-webdriver'
 gem 'i18n'
+gem 'axlsx', "~> 2.1.0.pre"
+gem 'rubyzip' #, '~> 2.3.2'
+gem 'ffi', '~> 1.16.0'
 
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.2'

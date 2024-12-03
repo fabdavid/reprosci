@@ -12,6 +12,13 @@ class Assertion < ApplicationRecord
   searchable do
     integer :id
     text :content
+    text :authors_txt, :boost => 3 do
+      article.authors_txt if article
+    end
+    text :authors_unaccentuated, :boost => 3 do
+      I18n.transliterate article.authors_txt if article
+    end
+   
     text :tags, :boost => 2 do
       tags.map{|t| t.name}
     end

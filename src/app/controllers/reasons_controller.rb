@@ -8,6 +8,46 @@ class ReasonsController < ApplicationController
     else
       @reasons = []
     end
+
+    @reason_types = ReasonType.all
+    
+    respond_to do |format|
+       format.html {
+       }
+       format.text {
+         t = []
+         header = ['article', 'challenged_claim', 'claim_type', 'assessment_type', 'assessment'] + @reason_types.map{|rt| rt.name} + ['comment']
+         t.push header
+         @reasons.each do |reason|
+           
+           #    <td><%= raw display_ref(article) %></td>
+           #      <td><%= raw display_assertion(complement, complement.assertion_type) %></td>
+           #      <td><%= raw complement.assertion_type.label %></td>
+           #      <td><%= subject.assessment_type.name %></td>
+           #      <td><%= raw display_assertion(subject, subject.assertion_type) %><br/>
+           subject = reason.assertion
+           rel = reason.rel
+           complement = Assertion.where(:id => rel.complement_id).first
+           article = subject.article
+
+           authors = article.authors_txt.split(";")
+           article_txt = authors.first + ((authors.size > 1) ? '<i> et al.</i>' : '') + ", " + article.year.to_s
+           reason_type_ids = reason.reason_type_ids || ''
+           l = [
+             article_txt,
+             #             complement.content,
+             helpers.display_assertion_txt(complement, complement.assertion_type),
+             complement.assertion_type.name,
+             subject.assessment_type.name,
+             #subject.content
+             helpers.display_assertion_txt(subject, subject.assertion_type),
+           ] +  @reason_types.map{|rt| (reason_type_ids.split(",").include? rt.id.to_s) ? "Yes" : "-"} + [reason.comment]
+           t.push l
+         end
+         render :plain => t.map{|e| e.join("\t")}.join("\n")
+       }
+    end
+    
   end
 
   # GET /reasons/1 or /reasons/1.json
@@ -78,6 +118,6 @@ class ReasonsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def reason_params
-      params.fetch(:reason).permit(:reason_type_ids)
+      params.fetch(:reason).permit(:reason_type_ids, :comment)
     end
 end
