@@ -26,6 +26,7 @@ Rails.application.routes.draw do
       get :get_author_list
       get :get_stats
       get :get_file
+      get :get_claims
       get :subscribe
       get :latest_changes
     end

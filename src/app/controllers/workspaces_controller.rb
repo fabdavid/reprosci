@@ -1,5 +1,5 @@
 class WorkspacesController < ApplicationController
-  before_action :set_workspace, only: [:show, :edit, :update, :destroy, :get_author_list, :get_stats, :get_file, :subscribe, :display_disclaimer, :accept_disclaimer, :latest_changes]
+  before_action :set_workspace, only: [:show, :edit, :update, :destroy, :get_author_list, :get_stats, :get_file, :get_claims, :subscribe, :display_disclaimer, :accept_disclaimer, :latest_changes]
 
   def set_search_session
     [:search_type].each do |e|
@@ -311,6 +311,71 @@ class WorkspacesController < ApplicationController
       end
     end
     render :plain => content.map{|e| e.join("\t")}.join("\n")
+  end
+
+  def get_claims
+
+    if admin? or read_admin?
+
+      content = [["First author", "Year", "Volume", "Issue", "Journal", "Claim type", "Claim", "Assessment type", "Assessment"]]
+      h_articles = {}
+      all_articles = @workspace.articles
+      
+      all_articles.each do |a|
+        h_articles[a.id] = a
+      end
+
+      h_journals = {}
+      Journal.all.map{|j| h_journals[j.id] = j}
+      
+      assertion_types = AssertionType.where(:name => ["main_claim", "major_claim", "minor_claim"]).all
+      h_assertion_types = {}
+      assertion_types.map{|e| h_assertion_types[e.id] = e}
+      assessment_type =  AssertionType.where(:name => "assessment").first
+      
+      h_assessment_types = {}
+      AssessmentType.all.map{|e| h_assessment_types[e.id] = e}
+      
+      all_assertions = Assertion.where(:article_id => all_articles.map{|e| e.id}, :obsolete => false).all #assertions
+    
+      assertions = all_assertions.select{|as| assertion_types.map{|e| e.id}.include?(as.assertion_type_id)}
+      assessments = all_assertions.select{|as| as.assertion_type_id == assessment_type.id}
+      h_assessments = {}
+      assessments.map{|a| h_assessments[a.id] = a}
+      
+      h_rels = {}
+      rels = Rel.where(:complement_id => assertions.map{|a| a.id}, :rel_type_id => 2).all
+      rels.map{|r| h_rels[r.complement_id] = r.subject_id}
+      
+      
+      assertions.each do |c|
+        a = h_articles[c.article_id]
+        # authors = a.authors_txt.split(";")
+        # affs = Basic.safe_parse_json(a.affs_json, [])
+        # authors.each_index do |i|
+        #   author = authors[i]
+        #   content.push([author, i+1, affs[i].join(", "), a.pmid, a.title, a.year])
+        # end
+        #      rel = Rel.where(:subject_id => c.id, :rel_type_id => 2).first
+        assessment = h_assessments[h_rels[c.id]]
+        logger.debug("SUBJECT" + h_rels[c.id].to_s)
+        content.push([
+                       a.authors_txt.split(";").first,
+                       a.year,
+                       (h_journals[a.journal_id].tag) ? h_journals[a.journal_id].tag :  h_journals[a.journal_id].name,
+                       a.volume,
+                       a.issue,
+                       h_assertion_types[c.assertion_type_id].label,
+                       helpers.display_assertion_txt(c, c.assertion_type),
+                       h_assessment_types[assessment.assessment_type_id].name,
+                       helpers.display_assertion_txt(assessment, assessment.assertion_type)
+                     ])
+      end
+      
+      render :plain => content.map{|e| e.join("\t")}.join("\n")
+    else
+      render :nothing => true
+    end
   end
   
   def search
