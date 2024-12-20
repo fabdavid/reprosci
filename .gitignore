@@ -12,6 +12,7 @@ src/public/assets/*
 src/Gemfile.lock*
 src/solr
 
+.env
 .env.dev
 .env.prod
 
