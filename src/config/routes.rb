@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   end
   resource :home do
     collection do
+      get :download
       get :faq
       get :welcome
       get :associate_orcid
@@ -97,6 +98,7 @@ Rails.application.routes.draw do
   resources :journals
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
+  match 'download' => 'home#download', :via => [:get]
    match 'faq' => 'home#faq', :via => [:get]
   match 'welcome' => 'home#welcome', :via => [:get]
  match '/associate_orcid' => 'home#associate_orcid', :via => [:get]

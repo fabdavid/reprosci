@@ -9,6 +9,7 @@ services:
     volumes:
       - ./src:/opt/reprosci
       - /mnt/reprosci:/mnt/reprosci
+      - /mnt/reprosci_share:/mnt/reprosci_share
       - /data/reprosci:/data/reprosci
     env_file: .env.prod
     restart: always

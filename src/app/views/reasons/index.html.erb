@@ -1,6 +1,10 @@
 <p id="notice"><%= notice %></p>
 
-<% reason_types = ReasonType.all %>
+<%# reason_types = ReasonType.all %>
+
+<div class='float-right'>
+  <a type='button' id='download-btn' class='btn btn-primary' href='<%= reasons_path(:format => "text") %>'>Download</a> 
+</div>
 
 <h1>Reasons</h1>
 
@@ -33,13 +37,17 @@
 	<%# l = ReasonType.all.map{|e| [e.name, e.id]} %>
 	<%# l.unshift ['Not defined', ''] %>
 	<%# select_tag "reason_type_#{reason.id}", options_for_select(l, reason.reason_type_id), :style =>"", :class => 'reason_type' %>
-	<% reason_types.each do |rt| %>
+	<% @reason_types.each do |rt| %>
 	<span class='badge badge-info'>
 	  <%= check_box_tag "reason_types[#{reason.id}][#{rt.id}]", rt.id, (reason.reason_type_ids and reason.reason_type_ids.split(",").include? rt.id.to_s), :class => 'reason_type' %> <%= rt.name %>
 	</span>
 	<% end %>
-	<%= text_field_tag "reason_types[#{reason.id}]['comment']", rt.comment, :class => 'form-control' %> <div class='upd_reason_btn' class='btn btn-success reason_type'>Update</div>
+	<div class='form-inline'>
+	  <%= text_area_tag "reason_types[#{reason.id}][comment]", reason.comment, :cols => 50, :rows => 3, :class => 'form-control' %>
+	  <div id='upd_reason_<%= reason.id %>_btn' class='btn btn-success reason_type'>Update</div>
+	</div>
 	<div id='upd_reason_container_<%= reason.id %>'></div>
+	
       </td>
   <!--    <td><%# link_to 'Show', reason %></td>
       <td><%# link_to 'Edit', edit_reason_path(reason) %></td>
@@ -53,6 +61,7 @@
 
 <%= javascript_tag do %>
 
+
 $("#reasons").DataTable({pageLength:<%= @reasons.size %>})
 
 $(".reason_type").click(function(){
@@ -64,7 +73,8 @@ $(".reason_type").click(function(){
     reason_type_ids.push($(this).val());
   });
 var data = [
-{name : 'reason[reason_type_ids]', value : reason_type_ids.join(",")}
+{name : 'reason[reason_type_ids]', value : reason_type_ids.join(",")},
+{name : 'reason[comment]', value : $("#reason_types_" + reason_id + "_comment").val()}
 ]
 refresh_post(null, "<%= raw reasons_path() %>/" + reason_id, data, 'put', {})
 })

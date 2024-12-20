@@ -17,7 +17,7 @@ task init_reasons: :environment do
       if rel
         puts rel.id
         h_reason = {
-          :reason_type_id => nil, #params[:reason_type_id],                                                                 
+          :reason_type_ids => nil, #params[:reason_type_id],                                                                 
           :assertion_id => a.id,
           :rel_id => rel.id,
           :user_id => 1
@@ -25,7 +25,7 @@ task init_reasons: :environment do
         reason = Reason.where(:assertion_id => a, :rel_id => rel.id).first
         if !reason
           reason = Reason.new(h_reason)
-        reason.save
+          reason.save
         end
       end
     end
