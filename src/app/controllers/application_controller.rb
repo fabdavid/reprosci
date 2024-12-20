@@ -6,15 +6,15 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   def superadmin?
-     current_user and ['bbcf.epfl@gmail.com'].include?(current_user.email)
+     current_user and ENV['SUPERADMIN'].split(",").include?(current_user.email)
   end
   
   def admin?
-    current_user and ['bbcf.epfl@gmail.com', 'hannah.westlake@epfl.ch'].include?(current_user.email)
+    current_user and ENV['ADMIN'].split(",").include?(current_user.email)
   end
 
   def read_admin?
-    current_user and ['bbcf.epfl@gmail.com', 'hannah.westlake@epfl.ch', 'desiree.popelka@epfl.ch', 'blandine.ribotta@epfl.ch', 'bruno.lemaitre@epfl.ch'].include?(current_user.email)
+    current_user and ENV['READ_ADMIN'].split(",").include?(current_user.email)
   end
 
   def banned_user? s, u, w
