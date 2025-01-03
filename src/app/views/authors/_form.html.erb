@@ -15,7 +15,12 @@
   <table width="100%">
     <tr>
       <td>Name</td>
-      <td><%= author.name %><%= form.hidden_field :name %></td>
+      <td>
+	<%= author.name %><%= form.hidden_field :name %>
+	<% if superadmin? %>
+	<%= form.text_field :name, {:class => 'form-control'} %>
+	<% end %>
+      </td>
     </tr>
     <tr>
       <td>Type</td>

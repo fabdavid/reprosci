@@ -9,6 +9,7 @@
 	<th>Type</th>
 	<th>Career stage</th>
 	<th>Degree of expertise</th>
+	<th></th>
       </tr>
     </thead>
     <tbody>
@@ -22,6 +23,11 @@
 	</td>
 	<td><%= (cs_id = a.career_stage_id) ? @h_career_stages[cs_id].name : 'NA' %></td>
 	<td><%= (el_id = a.expertise_level_id) ? @h_expertise_levels[el_id].name : 'NA' %></td>
+	<td>
+	  <% if superadmin? %>
+	  <%= link_to "Delete", a, method: :delete, data: { confirm: 'Are you sure?' } %>
+	  <% end %>
+	</td>
       </tr>
       <% end %>
     </tbody>
