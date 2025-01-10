@@ -97,8 +97,12 @@ Summary by group
 <div id='plot_irreproducibility'></div>
 <div id='plot_irreproducibility2'></div>
 
+<div id='plot_evo'></div>
+<div id='plot_evo2'></div>
+
 <div id='plot_categories'></div>
 <div id='plot_journal_types'></div>
+<div id='plot_journal_types2'></div>
 
 
 Irreproducibility of major claims by journal
@@ -148,11 +152,13 @@ var time_intervals =<%= raw @time_intervals.to_json %>
 var irreproducible_claims = <%= raw @irreproducible_claims.to_json %>
 var all_claims = <%= raw @all_claims.to_json %>
 
+var h_claims_evo = <%= raw @h_claims_evo.to_json %>
+
 var x = []
 for (var i = 0; i < time_intervals.length; i++){
   if (time_intervals[i][0] == null) {
-    x.push("Before " + time_intervals[i][1])		    
-		    }else{
+		    x.push("Before " + time_intervals[i][1])
+  }else{
 		    if (time_intervals[i][1] == null){
 x.push("After " + time_intervals[i][0])
 		    }else{
@@ -162,58 +168,46 @@ x.push(time_intervals[i][0] + " to " + time_intervals[i][1])
 }
 
 var data = [
-
   {
-
     x: x,
     y: irreproducible_claims.map((e, i) => e.length *100 / all_claims[i].length),
-    type: 'bar'
-    
+    type: 'bar'    
   }
-
 ];
 
   var layout = {
   title: {text: 'Percentage of irreproducible claims', font: {size: 24}},
   xaxis: { title: {text: ''},  tickfont: {size: 18}},
   yaxis: { title: {text: '', font: {size: 18}},  tickfont: {size: 18} },
-   width: 500
-
-
+  width: 500
  }
 
+
+  
 var data2 = [
-
   {
-
     x: x,
     y: irreproducible_claims.map((e, i) => all_claims[i].length),
     type: 'bar'
-
   }
-
   ];
-   var layout2 = {
+  
+  var layout2 = {
   title: {text: 'Total number of major claims', font: {size: 24}},
   xaxis: { title: {text: ''},  tickfont: {size: 18}},
   yaxis: { title: {text: '', font: {size: 18}},  tickfont: {size: 18} },
-   width: 500
+  width: 500
+  }
 
- }
-
-
-  
-Plotly.newPlot('plot_irreproducibility', data, layout);
-Plotly.newPlot('plot_irreproducibility2', data2, layout2);
-
+  Plotly.newPlot('plot_irreproducibility', data, layout);
+  Plotly.newPlot('plot_irreproducibility2', data2, layout2);
 
   var data3 = <%= raw @categories_data.to_json %>
   var layout3 = {
-  barmode: 'stack',
-  
-            title: { text: 'Proportion of major claims in broad categories', font: {size: 24}},
-            xaxis: { title: {text: ''},  tickfont: {size: 18}},
-  yaxis: { title: {text: 'Proportion of major claims', font: {size: 18}},  tickfont: {size: 18} },
+   barmode: 'stack',  
+   title: { text: 'Proportion of major claims in broad categories', font: {size: 24}},
+   xaxis: { title: {text: ''},  tickfont: {size: 18}},
+   yaxis: { title: {text: 'Proportion of major claims', font: {size: 18}},  tickfont: {size: 18} },
    width: 500
 
   }
@@ -222,17 +216,17 @@ Plotly.newPlot('plot_irreproducibility2', data2, layout2);
   Plotly.newPlot('plot_categories', data3, layout3)
 
 
-  // Data for the pie chart
   var data4 = [{
     y: <%= raw @journal_types.map{|jt| @irreproducible_claims_by_journal_type[jt].size.to_f*100/@all_claims_by_journal_type[jt].size}.to_json %>, //[10, 20, 30],
-    x: <%= raw @journal_types.to_json %>,
+  x: <%= raw @journal_types.to_json %>,
+  hovertext: <%= raw @journal_types.map{|jt| @irreproducible_claims_by_journal_type[jt].size.to_s + "/" + @all_claims_by_journal_type[jt].size.to_s + " (" + (@irreproducible_claims_by_journal_type[jt].size.to_f*100/@all_claims_by_journal_type[jt].size).round(2).to_s + "%)"}.to_json %>,
+    hoverinfo: 'text',
     type: 'bar'
   }];
 
-  // Layout configuration for the pie chart
   var layout4 = {
     title: {
-        text: 'Major claims by journal type',
+        text: 'Challenged major claims by journal type',
         font: {
             size: 24
    }},
@@ -257,8 +251,76 @@ Plotly.newPlot('plot_irreproducibility2', data2, layout2);
   width: 500
   };
 
-  // Render the pie chart
   Plotly.newPlot('plot_journal_types', data4, layout4);
 
+  var data5 = []
+  var cats = Object.keys(h_claims_evo)
+  for (var j=0; j<cats.length; j++){
+			data5.push({
+			name: cats[j],
+    x: x,
+    y: h_claims_evo[cats[j]].map((e, i) => (e.length *100 / all_claims[i].length).toPrecision(4)),
+    hovertext: h_claims_evo[cats[j]].map((e, i) => e.length + " (" + ((e.length *100 / all_claims[i].length).toPrecision(4)) + "%)"),
+    hoverinfo: 'text',
+    type: 'bar'
+   });
+    }
+    
+  var layout = {
+   title: {text: 'Percentage of claims by category over time', font: {size: 24}},
+   xaxis: { title: {text: ''},  tickfont: {size: 18}},
+   yaxis: { title: {text: '', font: {size: 18}},  tickfont: {size: 18} },
+   width: 500
+  }
+
+   Plotly.newPlot('plot_evo', data5, layout);
+
+
+    var data6 =[]
+    <% @h_claims_by_journal_type.each_key do |cat| %>
+        data6.push({
+    y: <%= raw @journal_types.map{|jt| @h_claims_by_journal_type[cat][jt].size.to_f*100/@h_all_claims_by_journal_type[cat][jt].size}.to_json %>, //[10, 20, 30],
+    x: <%= raw @journal_types.to_json %>,
+    hovertext: <%= raw @journal_types.map{|jt| @h_claims_by_journal_type[cat][jt].size.to_s + "/" + @h_all_claims_by_journal_type[cat][jt].size.to_s + " (" + (@h_claims_by_journal_type[cat][jt].size.to_f*100/@h_all_claims_by_journal_type[cat][jt].size).round(2).to_s + "%)"}.to_json %>,
+    hoverinfo: 'text', 
+				 name: '<%= cat %>', 
+				  type: 'bar'
+				  });
+    <% end %>
+				  
+
+  var layout4 = {
+    title: {
+        text: 'Challenged major claims by journal type and category',
+        font: {
+            size: 24
+   }},
+  xaxis: {
+     title: {
+        text: 'Categories',
+        font: {
+            size: 18
+            }
+  },
+  tickfont: { size: 18}
+  },
+  yaxis: {
+  title: {
+   text: 'Values',
+   font: {
+            size: 18
+            }
+  },
+  tickfont: {size: 18}
+  },
+  width: 500
+  };
+
+  Plotly.newPlot('plot_journal_types2', data6, layout4);
+
+
+
+ 
+    
   
   <% end %>

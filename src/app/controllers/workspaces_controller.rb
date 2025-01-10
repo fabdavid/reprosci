@@ -115,6 +115,14 @@ class WorkspacesController < ApplicationController
       @h_stats_by_group = {}
       
       @challenged_ids = [3, 10, 11]
+
+      @h_cat_ids = {
+        "Verified" => [1, 6, 7],
+        "Unchallenged" => [8, 9, 4],
+        "Challenged" => [3, 10, 11],
+        "Partially verified" => [13],
+        "Mixed" => [2]
+      }
       
       @articles = @workspace.articles
 
@@ -213,37 +221,76 @@ class WorkspacesController < ApplicationController
 
       @journal_types.each do |jt|
         @irreproducible_claims_by_journal_type[jt]=[]
-        @all_claims_by_journal_type[jt]=[]
+        @all_claims_by_journal_type[jt]=[]        
       end
       
      # @irreproducible_claims.each_key do |k|
       #   cond = h_cond[k]
+
+      @h_claims_evo = {}
+      @h_all_claims_by_journal_type = {}
+      @h_claims_by_journal_type = {}
+
+    #  @h_all_claims_evo = {}
+      
       @time_intervals.each do |interval|
+        
         articles = []
         if interval[0] == nil
           articles = Article.where("year <= #{interval[1]}").all
-        elsif interval[1] == nil
-          articles = Article.where("year >= #{interval[0]}").all
-        else
-          articles = Article.where("year <= #{interval[1]} and year >= #{interval[0]}").all
+          elsif interval[1] == nil
+            articles = Article.where("year >= #{interval[0]}").all
+          else
+            articles = Article.where("year <= #{interval[1]} and year >= #{interval[0]}").all
         end
-        all_assertions =  Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id).all
-        assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @challenged_ids).all
-        #assertions = Rel.where(:complement_id => all_assertions.map{|e| e.id}, :rel_type_id => 2, :assessment_type_id => @challenged_ids).all #.select{|e| @h_assessment_types[e.assessment_type_id].name.match(/^Challenged/)}
-        logger.debug("ASSERTION: " + assertions.size.to_s)
-        @irreproducible_claims.push assertions
+        
+        all_assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id).all
+  
         @all_claims.push all_assertions
+
+        assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @h_cat_ids["Challenged"]).all
         @journals.each do |journal|
           journal_id = journal.id
           tmp_article_ids = articles.select{|a| a.journal_id == journal_id}.map{|a| a.id}
           @all_claims_by_journal[journal_id].push all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
           @irreproducible_claims_by_journal[journal_id].push assertions.select{|e| tmp_article_ids.include?(e.article_id)}
-          
-          @all_claims_by_journal_type[@h_journal_types[journal_id]].concat all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
           @irreproducible_claims_by_journal_type[@h_journal_types[journal_id]].concat assertions.select{|e| tmp_article_ids.include?(e.article_id)}
         end
         
+        @h_cat_ids.each_key do |cat|
+
+          @h_claims_evo[cat] ||= []
+          #          @h_claims_by_journal[cat] ||= {}
+          @h_all_claims_by_journal_type[cat] ||= {}
+          @h_claims_by_journal_type[cat] ||= {}
+
+          assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @h_cat_ids[cat]).all
+          
+          #assertions = Rel.where(:complement_id => all_assertions.map{|e| e.id}, :rel_type_id => 2, :assessment_type_id => @challenged_ids).all #.select{|e| @h_assessment_types[e.assessment_type_id].name.match(/^Challenged/)}
+          logger.debug("ASSERTION: " + assertions.size.to_s)
+          # @irreproducible_claims.push assertions
+          @h_claims_evo[cat].push assertions
+          #   @h_all_claims_evo[cat].push all_assertions
+          # if cat == 'Challenged'
+          @journals.each do |journal|
+            journal_id = journal.id
+            tmp_article_ids = articles.select{|a| a.journal_id == journal_id}.map{|a| a.id}
+          #  @all_claims_by_journal[journal_id].push all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+          #  @irreproducible_claims_by_journal[journal_id].push assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+
+            @all_claims_by_journal_type[@h_journal_types[journal_id]].concat all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+            @h_all_claims_by_journal_type[cat][@h_journal_types[journal_id]]||=[]
+            @h_all_claims_by_journal_type[cat][@h_journal_types[journal_id]].concat all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+            
+            @h_claims_by_journal_type[cat][@h_journal_types[journal_id]]||=[]
+            @h_claims_by_journal_type[cat][@h_journal_types[journal_id]].concat assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+          end
+          # end
+        end
       end
+
+      @irreproducible_claims = @h_claims_evo["Challenged"]
+#      @all_claims =  @h_all_claims_evo["Challenged"]
 
       ## by category
       @categories_data = []
@@ -346,8 +393,7 @@ class WorkspacesController < ApplicationController
       h_rels = {}
       rels = Rel.where(:complement_id => assertions.map{|a| a.id}, :rel_type_id => 2).all
       rels.map{|r| h_rels[r.complement_id] = r.subject_id}
-      
-      
+            
       assertions.each do |c|
         a = h_articles[c.article_id]
         # authors = a.authors_txt.split(";")
