@@ -76,9 +76,7 @@
 
 $(document).ready(function(){
 
- <% if @share and !@share.accepted_disclaimer_at %>                                                                                                                                                
-/* $("#ontop_container").html("<%= @workspace.disclaimer %>")  
-*/
+ <% if !read_admin? and (@share and !@share.accepted_disclaimer_at) %>                                                                                                                                                
 refresh("ontop_container", "<%= display_disclaimer_workspace_path(:key => @workspace.key) %>", {loading:'fa-2x'})
  var w = $(window).width();
  var h = $(window).height();
@@ -86,12 +84,6 @@ refresh("ontop_container", "<%= display_disclaimer_workspace_path(:key => @works
  $("#ontop_window_close").addClass("hidden")
  $("#ontop_window").css({}).stop().show(100) 
 
-/*.css({
-        left: 200,
-        width:w - 250,
-        height:'auto',
-        top: e.pageY + 10
- }).stop().show(100); */
  <% end %> 
 <% h_search_assertions_params = {:workspace_key => @workspace.key, :nolayout => 1} %>
 <% h_search_assertions_params[:free_text] = params[:q_articles] if params[:q_articles] %>
