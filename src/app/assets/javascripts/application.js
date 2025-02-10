@@ -61,7 +61,7 @@
 
 // Display a message temporarily for 1 second in a div
 function display_message(message, div_id) {
-    let div = $("#" + div_id)
+    let div = $(div_id)
     // Display the message
     div.html(message);
 
