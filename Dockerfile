@@ -17,6 +17,7 @@ RUN apk add postgresql-dev git build-base nodejs bash openjdk8-jre grep\
 #RUN pip3 install --upgrade pip
 #RUN pip3 install pygetpapers pandas
 
+RUN gem update --system 3.3.22
 RUN mkdir -p /opt/mimemagic
 WORKDIR /opt/reprosci
 ENV FREEDESKTOP_MIME_TYPES_PATH=/opt/mimemagic
