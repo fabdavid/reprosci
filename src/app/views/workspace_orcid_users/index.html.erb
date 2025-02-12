@@ -12,9 +12,9 @@
   <tbody>
     <% @workspace_orcid_users.each do |workspace_orcid_user| %>
       <tr>
-        <td><%= link_to 'Show', workspace_orcid_user %></td>
+        <td><%= link_to 'Show', workspace_orcid_user_path(workspace_orcid_user) %></td>
         <td><%= link_to 'Edit', edit_workspace_orcid_user_path(workspace_orcid_user) %></td>
-        <td><%= link_to 'Destroy', workspace_orcid_user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', workspace_orcid_user_path(workspace_orcid_user), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

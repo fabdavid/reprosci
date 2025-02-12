@@ -12,9 +12,9 @@
   <tbody>
     <% @rels.each do |rel| %>
       <tr>
-        <td><%= link_to 'Show', rel %></td>
+        <td><%= link_to 'Show', rel_path(rel) %></td>
         <td><%= link_to 'Edit', edit_rel_path(rel) %></td>
-        <td><%= link_to 'Destroy', rel, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', rel_path(rel), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

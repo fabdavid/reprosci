@@ -365,7 +365,8 @@ function refresh(container, url, h){
             }
         },
        error: function(e){
-            //  alert(e);                                                                                                                                                                                                  
+           //  alert(e);
+           div.empty()	   
         }
     });
 

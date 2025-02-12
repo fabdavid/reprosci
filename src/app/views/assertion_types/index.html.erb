@@ -12,9 +12,9 @@
   <tbody>
     <% @assertion_types.each do |assertion_type| %>
       <tr>
-        <td><%= link_to 'Show', assertion_type %></td>
+        <td><%= link_to 'Show', assertion_type_path(assertion_type) %></td>
         <td><%= link_to 'Edit', edit_assertion_type_path(assertion_type) %></td>
-        <td><%= link_to 'Destroy', assertion_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', assertion_type_path(assertion_type), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

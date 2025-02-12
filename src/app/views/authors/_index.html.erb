@@ -25,7 +25,7 @@
 	<td><%= (el_id = a.expertise_level_id) ? @h_expertise_levels[el_id].name : 'NA' %></td>
 	<td>
 	  <% if superadmin? %>
-	  <%= link_to "Delete", a, method: :delete, data: { confirm: 'Are you sure?' } %>
+	  <%= link_to "Delete", author_path(a), method: :delete, data: { confirm: 'Are you sure?' } %>
 	  <% end %>
 	</td>
       </tr>

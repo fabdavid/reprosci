@@ -16,9 +16,9 @@
     <% @abuse_report_types.each do |ar_type| %>
       <tr>
         <td><%= ar_type.name %></td>
-        <td><%= link_to 'Show', ar_type %></td>
+        <td><%= link_to 'Show', abuse_report_type_path(ar_type) %></td>
         <td><%= link_to 'Edit', edit_abuse_report_type_path(ar_type) %></td>
-        <td><%= link_to 'Destroy', ar_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', abuse_report_type_path(ar_type), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

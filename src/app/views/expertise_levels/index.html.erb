@@ -16,9 +16,9 @@
     <% @expertise_levels.each do |expertise_level| %>
     <tr>
       <td><%= expertise_level.name %></td>
-        <td><%= link_to 'Show', expertise_level %></td>
+        <td><%= link_to 'Show', expertise_level_path(expertise_level) %></td>
         <td><%= link_to 'Edit', edit_expertise_level_path(expertise_level) %></td>
-        <td><%= link_to 'Destroy', expertise_level, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', expertise_level_path(expertise_level), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

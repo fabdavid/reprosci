@@ -16,9 +16,9 @@
     <% @reason_types.each do |reason_type| %>
     <tr>
       <td><%= reason_type.name %></td>
-      <td><%= link_to 'Show', reason_type %></td>
+      <td><%= link_to 'Show', reason_type_path(reason_type) %></td>
       <td><%= link_to 'Edit', edit_reason_type_path(reason_type) %></td>
-      <td><%= link_to 'Destroy', reason_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      <td><%= link_to 'Destroy', reason_type_path(reason_type), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
