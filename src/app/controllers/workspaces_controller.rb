@@ -169,35 +169,37 @@ class WorkspacesController < ApplicationController
         @h_rels[rel.id] = rel
         subject = @h_assertions[rel.subject_id]
         complement =  @h_assertions[rel.complement_id]
-        k1 = subject.assessment_type_id
-        k2 = (complement) ? complement.assertion_type_id : nil
-        k3 = subject.assertion_type_id
-        @h_rels_by_type[rel.complement_id] ||= {}
-        @h_rels_by_type[rel.complement_id][rel.rel_type_id] ||= []
-        @h_rels_by_type[rel.complement_id][rel.rel_type_id].push rel.id
-        if k1 and rel.rel_type_id == 2 
-          #        k2 = @h_assertions[rel.complement_id].assertion_type_id
-          #   if k1 < 5        
-          @assessement_type_by_claim_type[k2] ||= {}
-          @assessement_type_by_claim_type[k2][k1] ||= []
-          @assessement_type_by_claim_type[k2][k1].push(rel.id)
-        end
-        article = @h_articles[complement.article_id]
-        authors = article.authors_txt.split(";")
-        last_author = authors.last
-        first_author = authors.first
-        journal = article.journal
-        #      content.push(["bla", params[:type]])
-        if params[:type] == 'assessment' and rel.rel_type_id == 2 and  @h_assertion_types[k2] and @h_assessment_types[k1] 
-          l = [@h_assertion_types[k2].name, @h_assessment_types[k1].name, complement.content, subject.content, (journal) ? journal.name : 'NA', article.year, first_author, last_author]
-          content.push(l)        
-        elsif params[:type] == 'evidence' and k3 and  rel.rel_type_id == 1 #and @h_assertion_types[k3] and  @h_assertion_types[k2]
-          l = [@h_assertion_types[k2].name, @h_assertion_types[k3].name, complement.content, subject.content, (journal) ? journal.name : 'NA', article.year, first_author, last_author]
-          content.push(l)
-        elsif params[:type] == 'comment' and k3 and rel.rel_type_id == 3 and  @h_assertion_types[k3] and  @h_assertion_types[k2]
-          l = [@h_assertion_types[k2].name, @h_assertion_types[k3].name, complement.content, subject.content, (journal) ? journal.name : 'NA', article.year, first_author, last_author]
-          content.push(l)
-          
+        if subject.obsolete == false and complement.obsolete == false
+          k1 = subject.assessment_type_id
+          k2 = (complement) ? complement.assertion_type_id : nil
+          k3 = subject.assertion_type_id
+          @h_rels_by_type[rel.complement_id] ||= {}
+          @h_rels_by_type[rel.complement_id][rel.rel_type_id] ||= []
+          @h_rels_by_type[rel.complement_id][rel.rel_type_id].push rel.id
+          if k1 and rel.rel_type_id == 2 
+            #        k2 = @h_assertions[rel.complement_id].assertion_type_id
+            #   if k1 < 5        
+            @assessement_type_by_claim_type[k2] ||= {}
+            @assessement_type_by_claim_type[k2][k1] ||= []
+            @assessement_type_by_claim_type[k2][k1].push(rel.id)
+          end
+          article = @h_articles[complement.article_id]
+          authors = article.authors_txt.split(";")
+          last_author = authors.last
+          first_author = authors.first
+          journal = article.journal
+          #      content.push(["bla", params[:type]])
+          if params[:type] == 'assessment' and rel.rel_type_id == 2 and  @h_assertion_types[k2] and @h_assessment_types[k1] 
+            l = [@h_assertion_types[k2].name, @h_assessment_types[k1].name, complement.content, subject.content, (journal) ? journal.name : 'NA', article.year, first_author, last_author]
+            content.push(l)        
+          elsif params[:type] == 'evidence' and k3 and  rel.rel_type_id == 1 #and @h_assertion_types[k3] and  @h_assertion_types[k2]
+            l = [@h_assertion_types[k2].name, @h_assertion_types[k3].name, complement.content, subject.content, (journal) ? journal.name : 'NA', article.year, first_author, last_author]
+            content.push(l)
+          elsif params[:type] == 'comment' and k3 and rel.rel_type_id == 3 and  @h_assertion_types[k3] and  @h_assertion_types[k2]
+            l = [@h_assertion_types[k2].name, @h_assertion_types[k3].name, complement.content, subject.content, (journal) ? journal.name : 'NA', article.year, first_author, last_author]
+            content.push(l)
+
+          end
         end
       end
 
@@ -210,7 +212,7 @@ class WorkspacesController < ApplicationController
       @all_claims_by_journal = {}
       @all_claims_by_journal_type = {}
       
-      all_challenged = Assertion.where(:assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @challenged_ids).all
+      all_challenged = Assertion.where(:assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @challenged_ids, :obsolete => false).all
       @all_challenged_journal_ids = all_challenged.map{|e| @h_articles[e.article_id].journal_id}.uniq #if all_challenged
    #   @all_challenged_journal_ids.each do |j_id|
       @journals.each do |j|
@@ -244,17 +246,17 @@ class WorkspacesController < ApplicationController
             articles = Article.where("year <= #{interval[1]} and year >= #{interval[0]}").all
         end
         
-        all_assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id).all
+        all_assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :obsolete => false).all
   
         @all_claims.push all_assertions
 
-        assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @h_cat_ids["Challenged"]).all
+        assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @h_cat_ids["Challenged"], :obsolete => false).all
         @journals.each do |journal|
           journal_id = journal.id
           tmp_article_ids = articles.select{|a| a.journal_id == journal_id}.map{|a| a.id}
           @all_claims_by_journal[journal_id].push all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
           @irreproducible_claims_by_journal[journal_id].push assertions.select{|e| tmp_article_ids.include?(e.article_id)}
-          @irreproducible_claims_by_journal_type[@h_journal_types[journal_id]].concat assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+          @irreproducible_claims_by_journal_type[@h_journal_types[journal_id]] |= assertions.select{|e| tmp_article_ids.include?(e.article_id)}
         end
         
         @h_cat_ids.each_key do |cat|
@@ -264,7 +266,7 @@ class WorkspacesController < ApplicationController
           @h_all_claims_by_journal_type[cat] ||= {}
           @h_claims_by_journal_type[cat] ||= {}
 
-          assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @h_cat_ids[cat]).all
+          assertions = Assertion.where(:article_id => articles.map{|a| a.id}, :assertion_type_id => @h_assertion_types['major_claim'].id, :assessment_type_id => @h_cat_ids[cat],  :obsolete => false).all
           
           #assertions = Rel.where(:complement_id => all_assertions.map{|e| e.id}, :rel_type_id => 2, :assessment_type_id => @challenged_ids).all #.select{|e| @h_assessment_types[e.assessment_type_id].name.match(/^Challenged/)}
           logger.debug("ASSERTION: " + assertions.size.to_s)
@@ -278,12 +280,12 @@ class WorkspacesController < ApplicationController
           #  @all_claims_by_journal[journal_id].push all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
           #  @irreproducible_claims_by_journal[journal_id].push assertions.select{|e| tmp_article_ids.include?(e.article_id)}
 
-            @all_claims_by_journal_type[@h_journal_types[journal_id]].concat all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+            @all_claims_by_journal_type[@h_journal_types[journal_id]] |= all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
             @h_all_claims_by_journal_type[cat][@h_journal_types[journal_id]]||=[]
-            @h_all_claims_by_journal_type[cat][@h_journal_types[journal_id]].concat all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+            @h_all_claims_by_journal_type[cat][@h_journal_types[journal_id]] |= all_assertions.select{|e| tmp_article_ids.include?(e.article_id)}
             
             @h_claims_by_journal_type[cat][@h_journal_types[journal_id]]||=[]
-            @h_claims_by_journal_type[cat][@h_journal_types[journal_id]].concat assertions.select{|e| tmp_article_ids.include?(e.article_id)}
+            @h_claims_by_journal_type[cat][@h_journal_types[journal_id]] |= assertions.select{|e| tmp_article_ids.include?(e.article_id)}
           end
           # end
         end
